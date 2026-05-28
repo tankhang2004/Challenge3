@@ -129,20 +129,20 @@ struct HomePageView: View {
     @State private var selectedFilter: String = "Newest"
     @State private var goToAddProject: Bool = false
     let filters = ["Newest", "By Type"]
-
+    
     let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
-
+    
     var body: some View {
-        NavigationStack {
+        NavigationStack{
             ZStack(alignment: .bottomTrailing) {
                 Color.pageBg.ignoresSafeArea()
-
+                
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
-
+                        
                         // MARK: Header
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 2) {
@@ -160,7 +160,7 @@ struct HomePageView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 20)
                         .padding(.bottom, 16)
-
+                        
                         // MARK: Filter Pills
                         HStack(spacing: 8) {
                             ForEach(filters, id: \.self) { filter in
@@ -173,8 +173,8 @@ struct HomePageView: View {
                                         .padding(.vertical, 7)
                                         .background(
                                             selectedFilter == filter
-                                                ? Color.brandOrange
-                                                : Color.clear
+                                            ? Color.brandOrange
+                                            : Color.clear
                                         )
                                         .foregroundColor(
                                             selectedFilter == filter ? .white : Color.brandBlue
@@ -183,8 +183,8 @@ struct HomePageView: View {
                                             RoundedRectangle(cornerRadius: 20)
                                                 .stroke(
                                                     selectedFilter == filter
-                                                        ? Color.brandOrange
-                                                        : Color.brandBlue,
+                                                    ? Color.brandOrange
+                                                    : Color.brandBlue,
                                                     lineWidth: 1.5
                                                 )
                                         )
@@ -194,14 +194,14 @@ struct HomePageView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 20)
-
+                        
                         // MARK: Sections
                         ForEach(sampleSections) { section in
                             Text(section.dateLabel)
                                 .font(.title3.bold())
                                 .padding(.horizontal, 20)
                                 .padding(.bottom, 12)
-
+                            
                             LazyVGrid(columns: columns, spacing: 12) {
                                 ForEach(section.items) { item in
                                     NavigationLink(destination: MenuDetailView(item: item)) {
@@ -213,11 +213,11 @@ struct HomePageView: View {
                             .padding(.horizontal, 20)
                             .padding(.bottom, 24)
                         }
-
+                        
                         Spacer().frame(height: 80)
                     }
                 }
-
+                
                 // MARK: FAB
                 Button {
                     goToAddProject = true
@@ -237,6 +237,7 @@ struct HomePageView: View {
         }
     }
 }
+
 
 // MARK: - Preview
 
