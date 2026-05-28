@@ -127,6 +127,7 @@ struct MenuDetailView: View {
 
 struct HomePageView: View {
     @State private var selectedFilter: String = "Newest"
+    @State private var goToAddProject: Bool = false
     let filters = ["Newest", "By Type"]
 
     let columns = [
@@ -219,6 +220,7 @@ struct HomePageView: View {
 
                 // MARK: FAB
                 Button {
+                    goToAddProject = true
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 22, weight: .bold))
@@ -230,6 +232,7 @@ struct HomePageView: View {
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 28)
+                .navigationDestination(isPresented: $goToAddProject) {  AddProjectScreen()}
             }
         }
     }
