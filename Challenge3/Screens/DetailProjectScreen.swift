@@ -56,7 +56,7 @@ struct DetailProjectScreen: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
-                        importedSection
+//                        importedSection
                         topicSection
                         referencesSection
                         scriptSection
@@ -128,156 +128,159 @@ struct DetailProjectScreen: View {
     }
 
     var referencesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("References")
-                    .font(.system(size: 17, weight: .bold))
-                Spacer()
-                Button(action: {}) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "3FA9F7"))
-                            .frame(width: 34, height: 34)
-                        Image(systemName: "plus")
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        ZStack(alignment: .top) {
-                            Image("Reference1")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 160, height: 130)
-                                .clipped()
-
-                            Text("A Day in my Life as Student")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 6)
-                                .frame(width: 160, alignment: .center)
-                                .background(Color.black.opacity(0.3))
-                        }
-                        .frame(width: 160, height: 130)
-
-                        HStack(spacing: 6) {
-                            Image("Instagram")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                                .cornerRadius(6)
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text("@bibi")
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.black)
-                                Text("Instagram.com")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 8)
-                    }
-                    .frame(width: 160)
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        ZStack(alignment: .top) {
-                            Image("Reference2")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 160, height: 130)
-                                .clipped()
-
-                            Text("A Day in my Life as International")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 6)
-                                .frame(width: 160, alignment: .center)
-                                .background(Color.black.opacity(0.3))
-                        }
-                        .frame(width: 160, height: 130)
-
-                        HStack(spacing: 6) {
-                            Image("Tiktok")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                                .cornerRadius(6)
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text("@asaylife")
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.black)
-                                Text("tiktok.com")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 8)
-                    }
-                    .frame(width: 160)
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        ZStack(alignment: .top) {
-                            Image("Reference3")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 160, height: 130)
-                                .clipped()
-
-                            Text("a day my life")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 6)
-                                .frame(width: 160, alignment: .center)
-                                .background(Color.black.opacity(0.3))
-                        }
-                        .frame(width: 160, height: 130)
-
-                        HStack(spacing: 6) {
-                            Image("Instagram")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                                .cornerRadius(6)
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text("@linta")
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.black)
-                                Text("Instagram.com")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 8)
-                    }
-                    .frame(width: 160)
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-                }
-                .padding(.vertical, 4)
-            }
-        }
+        ReferencesSection()
     }
+//    var referencesSection: some View {
+//        VStack(alignment: .leading, spacing: 12) {
+//            HStack {
+//                Text("References")
+//                    .font(.system(size: 17, weight: .bold))
+//                Spacer()
+//                Button(action: {}) {
+//                    ZStack {
+//                        Circle()
+//                            .fill(Color(hex: "3FA9F7"))
+//                            .frame(width: 34, height: 34)
+//                        Image(systemName: "plus")
+//                            .font(.system(size: 15, weight: .bold))
+//                            .foregroundColor(.white)
+//                    }
+//                }
+//            }
+//
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                HStack(spacing: 12) {
+//
+//                    VStack(alignment: .leading, spacing: 0) {
+//                        ZStack(alignment: .top) {
+//                            Image("Reference1")
+//                                .resizable()
+//                                .scaledToFill()
+//                                .frame(width: 160, height: 130)
+//                                .clipped()
+//
+//                            Text("A Day in my Life as Student")
+//                                .font(.system(size: 11, weight: .semibold))
+//                                .foregroundColor(.white)
+//                                .multilineTextAlignment(.center)
+//                                .padding(.horizontal, 8)
+//                                .padding(.vertical, 6)
+//                                .frame(width: 160, alignment: .center)
+//                                .background(Color.black.opacity(0.3))
+//                        }
+//                        .frame(width: 160, height: 130)
+//
+//                        HStack(spacing: 6) {
+//                            Image("Instagram")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 22, height: 22)
+//                                .cornerRadius(6)
+//                            VStack(alignment: .leading, spacing: 1) {
+//                                Text("@bibi")
+//                                    .font(.system(size: 11, weight: .semibold))
+//                                    .foregroundColor(.black)
+//                                Text("Instagram.com")
+//                                    .font(.system(size: 10))
+//                                    .foregroundColor(.gray)
+//                            }
+//                        }
+//                        .padding(.horizontal, 8)
+//                        .padding(.vertical, 8)
+//                    }
+//                    .frame(width: 160)
+//                    .background(Color.white)
+//                    .cornerRadius(12)
+//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
+//
+//                    VStack(alignment: .leading, spacing: 0) {
+//                        ZStack(alignment: .top) {
+//                            Image("Reference2")
+//                                .resizable()
+//                                .scaledToFill()
+//                                .frame(width: 160, height: 130)
+//                                .clipped()
+//
+//                            Text("A Day in my Life as International")
+//                                .font(.system(size: 11, weight: .semibold))
+//                                .foregroundColor(.white)
+//                                .multilineTextAlignment(.center)
+//                                .padding(.horizontal, 8)
+//                                .padding(.vertical, 6)
+//                                .frame(width: 160, alignment: .center)
+//                                .background(Color.black.opacity(0.3))
+//                        }
+//                        .frame(width: 160, height: 130)
+//
+//                        HStack(spacing: 6) {
+//                            Image("Tiktok")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 22, height: 22)
+//                                .cornerRadius(6)
+//                            VStack(alignment: .leading, spacing: 1) {
+//                                Text("@asaylife")
+//                                    .font(.system(size: 11, weight: .semibold))
+//                                    .foregroundColor(.black)
+//                                Text("tiktok.com")
+//                                    .font(.system(size: 10))
+//                                    .foregroundColor(.gray)
+//                            }
+//                        }
+//                        .padding(.horizontal, 8)
+//                        .padding(.vertical, 8)
+//                    }
+//                    .frame(width: 160)
+//                    .background(Color.white)
+//                    .cornerRadius(12)
+//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
+//
+//                    VStack(alignment: .leading, spacing: 0) {
+//                        ZStack(alignment: .top) {
+//                            Image("Reference3")
+//                                .resizable()
+//                                .scaledToFill()
+//                                .frame(width: 160, height: 130)
+//                                .clipped()
+//
+//                            Text("a day my life")
+//                                .font(.system(size: 11, weight: .semibold))
+//                                .foregroundColor(.white)
+//                                .multilineTextAlignment(.center)
+//                                .padding(.horizontal, 8)
+//                                .padding(.vertical, 6)
+//                                .frame(width: 160, alignment: .center)
+//                                .background(Color.black.opacity(0.3))
+//                        }
+//                        .frame(width: 160, height: 130)
+//
+//                        HStack(spacing: 6) {
+//                            Image("Instagram")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 22, height: 22)
+//                                .cornerRadius(6)
+//                            VStack(alignment: .leading, spacing: 1) {
+//                                Text("@linta")
+//                                    .font(.system(size: 11, weight: .semibold))
+//                                    .foregroundColor(.black)
+//                                Text("Instagram.com")
+//                                    .font(.system(size: 10))
+//                                    .foregroundColor(.gray)
+//                            }
+//                        }
+//                        .padding(.horizontal, 8)
+//                        .padding(.vertical, 8)
+//                    }
+//                    .frame(width: 160)
+//                    .background(Color.white)
+//                    .cornerRadius(12)
+//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
+//                }
+//                .padding(.vertical, 4)
+//            }
+//        }
+//    }
 
     var scriptSection: some View {
         VStack(alignment: .leading, spacing: 8) {
