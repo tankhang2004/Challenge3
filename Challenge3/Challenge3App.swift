@@ -11,7 +11,19 @@ import SwiftUI
 struct Challenge3App: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+//            HomePageView()
+            TabView {
+                HomePageView()
+                    .tabItem {
+                        Label("Home", systemImage: "house")
+                    }
+
+                DetailProjectScreen()
+                    .tabItem {
+                        Label("Projects", systemImage: "folder")
+                    }
+
+            }
         }
     }
 }
