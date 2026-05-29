@@ -136,7 +136,7 @@ struct HomePageView: View {
     ]
     
     var body: some View {
-        NavigationStack{
+//        NavigationStack{
             ZStack(alignment: .bottomTrailing) {
                 Color.pageBg.ignoresSafeArea()
                 
@@ -236,7 +236,7 @@ struct HomePageView: View {
             }
         }
     }
-}
+//}
 
 
 // MARK: - Preview
