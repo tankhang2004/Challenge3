@@ -1,5 +1,36 @@
 import SwiftUI
+import LinkPresentation
 
+struct URLPreviewView: UIViewRepresentable {
+
+    let url: URL
+
+    func makeUIView(context: Context) -> LPLinkView {
+        let view = LPLinkView()
+        view.contentMode = .scaleAspectFit
+
+        let provider = LPMetadataProvider()
+
+        provider.startFetchingMetadata(for: url) { metadata, error in
+
+            if let metadata = metadata {
+                DispatchQueue.main.async {
+                    view.metadata = metadata
+                    // 🔥 important: prevent layout explosion
+//                      view.sizeToFit()
+                    // 🔥 important: resets internal layout
+                    view.invalidateIntrinsicContentSize()
+                    view.setNeedsLayout()
+                    view.layoutIfNeeded()
+                }
+            }
+        }
+
+        return view
+    }
+
+    func updateUIView(_ uiView: LPLinkView, context: Context) {}
+}
 
 struct DetailProjectScreen: View {
     @State private var sharedContents: [SharedContent] = []
@@ -557,8 +588,24 @@ struct DetailProjectScreen: View {
 
                     case .url:
 
-                        Text(item.url ?? "")
-                            .foregroundColor(.blue)
+                        VStack(alignment: .leading, spacing: 10) {
+
+                            if let urlString = item.url,
+                               let url = URL(string: urlString) {
+
+                                URLPreviewView(url: url)
+                                    .frame(height: 160)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                                Link(destination: url) {
+                                    Text(urlString)
+                                        .font(.caption)
+                                        .foregroundColor(.blue)
+                                        .lineLimit(2)
+                                        .truncationMode(.middle)
+                                }
+                            }
+                        }
 
                     case .image:
 
