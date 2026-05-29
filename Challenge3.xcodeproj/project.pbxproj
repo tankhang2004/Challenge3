@@ -56,6 +56,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Screens/SharedContent.swift,
+				Screens/SharedStorageManager.swift,
+			);
+			target = B1CD2B052FC516B20086EAF4 /* Challenge3Ext */;
+		};
 		B1CD2B112FC516B30086EAF4 /* Exceptions for "Challenge3Ext" folder in "Challenge3Ext" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -68,6 +76,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B1CD2ADA2FC516880086EAF4 /* Challenge3 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */,
+			);
 			path = Challenge3;
 			sourceTree = "<group>";
 		};
@@ -495,6 +506,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Challenge3/Challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9VVX62CK44;
@@ -527,6 +539,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Challenge3/Challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9VVX62CK44;
@@ -641,6 +654,7 @@
 		B1CD2B132FC516B30086EAF4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Challenge3Ext/Challenge3Ext.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9VVX62CK44;
@@ -669,6 +683,7 @@
 		B1CD2B142FC516B30086EAF4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Challenge3Ext/Challenge3Ext.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9VVX62CK44;

@@ -1,7 +1,8 @@
 import SwiftUI
 
-struct DetailProjectScreen: View {
 
+struct DetailProjectScreen: View {
+    @State private var sharedContents: [SharedContent] = []
     @State var topic = "A Day in My life as Apple Developer Academy Cohort"
     @State var script = "Hook: Bali punya hidden gems yang bahkan locals aja sering skip...\nMain: Nomor 10, Warung Bu Oka di Ubud..."
     @State var caption = "Hidden street food Bali yang wajib kamu coba! 🍜 Drop lokasi favorit kamu di komen 👇 #BaliFood #StreetFood #HiddenGem"
@@ -24,6 +25,7 @@ struct DetailProjectScreen: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
+                        importedSection
                         topicSection
                         referencesSection
                         scriptSection
@@ -63,6 +65,10 @@ struct DetailProjectScreen: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            sharedContents =
+                SharedContentManager.shared.load()
         }
     }
 
@@ -530,6 +536,49 @@ struct DetailProjectScreen: View {
             .padding(16)
             .background(Color.white)
             .cornerRadius(14)
+        }
+    }
+    var importedSection: some View {
+
+        VStack(alignment: .leading, spacing: 12) {
+
+            Text("Imported")
+                .font(.title2.bold())
+
+            ForEach(sharedContents, id: \.id) { item in
+
+                VStack(alignment: .leading) {
+
+                    switch item.type {
+
+                    case .text:
+
+                        Text(item.text ?? "")
+
+                    case .url:
+
+                        Text(item.url ?? "")
+                            .foregroundColor(.blue)
+
+                    case .image:
+
+                        if let filename = item.imageFilename,
+                           let image =
+                            SharedContentManager.shared
+                                .loadImage(filename: filename)
+                        {
+
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 200)
+                        }
+                    }
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(12)
+            }
         }
     }
 }
