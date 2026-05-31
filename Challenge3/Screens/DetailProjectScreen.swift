@@ -40,31 +40,6 @@ struct DetailProjectScreen: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {}) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 16, weight: .semibold))
-                            Text("Vlog A Day in My Life")
-                                .font(.system(size: 17, weight: .semibold))
-                        }
-                        .foregroundColor(Color(hex: "3FA9F7"))
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {}) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(hex: "3FA9F7"))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    }
-                }
-            }
         }
         .onAppear {
             sharedContents =

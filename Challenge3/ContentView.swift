@@ -42,7 +42,7 @@ struct ContentView: View {
                         .foregroundStyle(Color.white)
                         .lineSpacing(4)
                         .multilineTextAlignment(.center)
-                    Text("Create, collaborate, and organize \nyour contens in one space.")
+                    Text("Create, collaborate, and organize \nyour contents in one space.")
                         .font(.system(size: 15))
                         .foregroundStyle(.white.opacity(0.85))
                         .multilineTextAlignment(.center)
@@ -55,7 +55,7 @@ struct ContentView: View {
                          .foregroundStyle(Color.white)
                          .padding(.vertical, 18)
                          .frame(width: 198, height: 68)
-                         .background(LinearGradient(colors: [Color(red: 230/255, green: 119/255, blue: 64/255), Color(red: 251/255, green: 154/255, blue: 108/255)], startPoint: .top, endPoint: .bottom))
+                         .background(LinearGradient(colors: [Color(red: 251/255, green: 154/255, blue: 108/255), Color(red: 230/255, green: 119/255, blue: 64/255)], startPoint: .top, endPoint: .bottom))
                          .clipShape(Capsule())
                          .overlay(
                              Capsule()

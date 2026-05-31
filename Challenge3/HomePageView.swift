@@ -204,7 +204,7 @@ struct HomePageView: View {
                             
                             LazyVGrid(columns: columns, spacing: 12) {
                                 ForEach(section.items) { item in
-                                    NavigationLink(destination: MenuDetailView(item: item)) {
+                                    NavigationLink(destination: DetailProjectScreen()) {
                                         MenuCard(item: item)
                                     }
                                     .buttonStyle(.plain)
