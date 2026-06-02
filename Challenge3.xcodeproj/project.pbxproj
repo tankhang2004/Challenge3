@@ -62,6 +62,7 @@
 				Screens/ShareAppScreen.swift,
 				Screens/SharedContent.swift,
 				Screens/SharedStorageManager.swift,
+				Screens/ShareGalleryScreen.swift,
 			);
 			target = B1CD2B052FC516B20086EAF4 /* Challenge3Ext */;
 		};
