@@ -22,13 +22,13 @@ struct ContentView: View {
                 
                 ZStack {
                     Circle()
-                        .stroke(Color(red: 89/255, green: 193/255, blue: 253/255), lineWidth: 90)
-                        .frame(width: 700, height: 700)
+                        .stroke(Color(red: 89/255, green: 193/255, blue: 253/255), lineWidth: 80)
+                        .frame(width: 800, height: 800)
                     Circle()
-                        .stroke(Color(red: 89/255, green: 193/255, blue: 253/255), lineWidth: 90)
-                        .frame(width: 375, height: 375)
+                        .stroke(Color(red: 89/255, green: 193/255, blue: 253/255), lineWidth: 80)
+                        .frame(width: 450, height: 450)
                 }
-                .padding(.top, 141)
+                .padding(.top, 230)
                 .offset(y: 20)
                 
                 VStack {
@@ -55,7 +55,7 @@ struct ContentView: View {
                          .foregroundStyle(Color.white)
                          .padding(.vertical, 18)
                          .frame(width: 198, height: 68)
-                         .background(LinearGradient(colors: [Color(red: 230/255, green: 119/255, blue: 64/255), Color(red: 251/255, green: 154/255, blue: 108/255)], startPoint: .top, endPoint: .bottom))
+                         .background(LinearGradient(colors: [Color(red: 230/255, green: 119/255, blue: 64/255),  Color(red: 251/255, green: 154/255, blue: 108/255)], startPoint: .top, endPoint: .bottom))
                          .clipShape(Capsule())
                          .overlay(
                              Capsule()
@@ -70,7 +70,7 @@ struct ContentView: View {
                     }
                            
                 }
-                .offset(y: 130)
+                .offset(y: 180)
                 
             }
         }
