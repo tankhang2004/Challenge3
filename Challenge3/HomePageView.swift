@@ -52,7 +52,7 @@ struct MenuCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Image placeholder area
             ZStack {
-                Color.white
+                Color("CardColor")
                 Image(systemName: "photo")
                     .resizable()
                     .scaledToFit()
