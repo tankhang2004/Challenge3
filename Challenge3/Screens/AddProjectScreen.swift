@@ -45,9 +45,9 @@ struct AddProjectScreen: View {
                 Button(action: { dismiss()}) {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.callout)
                         Text("Add Project")
-                            .font(.system(size: 17, weight: .semibold))
+                            .font(.headline)
                     }
                     .foregroundColor(Color(hex: "3FA9F7"))
                 }
@@ -59,7 +59,7 @@ struct AddProjectScreen: View {
                             .fill(Color(hex: "3FA9F7"))
                             .frame(width: 36, height: 36)
                         Image(systemName: "checkmark")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.subheadline)
                             .foregroundColor(.white)
                     }
                 }
@@ -70,7 +70,7 @@ struct AddProjectScreen: View {
     var topicSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Topic")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
             
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -82,14 +82,14 @@ struct AddProjectScreen: View {
                 
                 if topic.isEmpty {
                     Text("Enter your project topic...")
-                        .font(.system(size: 15))
+                        .font(.subheadline)
                         .foregroundColor(Color.gray.opacity(0.5))
                         .padding(.horizontal, 14)
                         .padding(.top, 14)
                 }
                 
                 TextEditor(text: $topic)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .foregroundColor(.black)
                     .scrollContentBackground(.hidden)
                     .padding(8)
@@ -103,7 +103,7 @@ struct AddProjectScreen: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("References")
-                    .font(.system(size: 17, weight: .bold))
+                    .font(.headline)
                 Spacer()
                 Button(action: {}) {
                     ZStack {
@@ -111,7 +111,7 @@ struct AddProjectScreen: View {
                             .fill(Color(hex: "3FA9F7"))
                             .frame(width: 34, height: 34)
                         Image(systemName: "plus")
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.subheadline.bold())
                             .foregroundColor(.white)
                     }
                 }
@@ -127,10 +127,10 @@ struct AddProjectScreen: View {
                 
                 VStack(spacing: 6) {
                     Image(systemName: "photo.badge.plus")
-                        .font(.system(size: 26))
+                        .font(.title)
                         .foregroundColor(Color(hex: "3FA9F7").opacity(0.5))
                     Text("Tap + to add references")
-                        .font(.system(size: 13))
+                        .font(.footnote)
                         .foregroundColor(.gray)
                 }
             }
@@ -141,7 +141,7 @@ struct AddProjectScreen: View {
     var scriptSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Script")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
             
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -153,14 +153,14 @@ struct AddProjectScreen: View {
                 
                 if script.isEmpty {
                     Text("Write your script here...")
-                        .font(.system(size: 15))
+                        .font(.subheadline)
                         .foregroundColor(Color.gray.opacity(0.5))
                         .padding(.horizontal, 14)
                         .padding(.top, 14)
                 }
                 
                 TextEditor(text: $script)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .foregroundColor(.black)
                     .scrollContentBackground(.hidden)
                     .padding(8)
@@ -173,7 +173,7 @@ struct AddProjectScreen: View {
     var footageSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Footage")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
             
             VStack(spacing: 12) {
                 HStack(spacing: 10) {
@@ -185,7 +185,7 @@ struct AddProjectScreen: View {
                                     .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [5]))
                             )
                         Image(systemName: "plus")
-                            .font(.system(size: 22))
+                            .font(.title2)
                             .foregroundColor(Color.gray.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
@@ -199,7 +199,7 @@ struct AddProjectScreen: View {
                                     .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [5]))
                             )
                         Image(systemName: "plus")
-                            .font(.system(size: 22))
+                            .font(.title2)
                             .foregroundColor(Color.gray.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
@@ -213,7 +213,7 @@ struct AddProjectScreen: View {
                                     .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [5]))
                             )
                         Image(systemName: "plus")
-                            .font(.system(size: 22))
+                            .font(.title2)
                             .foregroundColor(Color.gray.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
@@ -222,7 +222,7 @@ struct AddProjectScreen: View {
                 
                 Button(action: {}) {
                     Text("+ Add More")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.subheadline)
                         .foregroundColor(Color(hex: "E67740"))
                 }
                 .frame(maxWidth: .infinity)
@@ -240,7 +240,7 @@ struct AddProjectScreen: View {
     var captionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Caption")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
             
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -252,14 +252,14 @@ struct AddProjectScreen: View {
                 
                 if caption.isEmpty {
                     Text("Write your caption here...")
-                        .font(.system(size: 15))
+                        .font(.subheadline)
                         .foregroundColor(Color.gray.opacity(0.5))
                         .padding(.horizontal, 14)
                         .padding(.top, 14)
                 }
                 
                 TextEditor(text: $caption)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .foregroundColor(.black)
                     .scrollContentBackground(.hidden)
                     .padding(8)
@@ -272,7 +272,7 @@ struct AddProjectScreen: View {
     var musicSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Music Selection")
-                .font(.system(size: 17, weight: .bold))
+                .font(.subheadline)
             
             HStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 8)
@@ -281,15 +281,15 @@ struct AddProjectScreen: View {
                     .overlay(
                         Image(systemName: "music.note")
                             .foregroundColor(.gray)
-                            .font(.system(size: 18))
+                            .font(.headline)
                     )
                 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("No music selected")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.title2)
                         .foregroundColor(.gray)
                     Text("Tap to choose music")
-                        .font(.system(size: 13))
+                        .font(.footnote)
                         .foregroundColor(Color.gray.opacity(0.7))
                 }
                 
@@ -297,7 +297,7 @@ struct AddProjectScreen: View {
                 
                 Button(action: { withAnimation { musicExpanded.toggle() } }) {
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                         .rotationEffect(.degrees(musicExpanded ? 180 : 0))
                 }
@@ -311,17 +311,17 @@ struct AddProjectScreen: View {
     var whenToPostSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("When to Post")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
             
             VStack(spacing: 10) {
                 HStack {
                     Button(action: {}) {
                         HStack(spacing: 4) {
                             Text("April 2025")
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.subheadline)
                                 .foregroundColor(.black)
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.caption.bold())
                                 .foregroundColor(.black)
                         }
                     }
@@ -331,12 +331,12 @@ struct AddProjectScreen: View {
                     HStack(spacing: 16) {
                         Button(action: {}) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline.bold())
                                 .foregroundColor(Color(hex: "3FA9F7"))
                         }
                         Button(action: {}) {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline.bold())
                                 .foregroundColor(Color(hex: "3FA9F7"))
                         }
                     }
@@ -345,7 +345,7 @@ struct AddProjectScreen: View {
                 HStack(spacing: 0) {
                     ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
                         Text(day)
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.caption2.bold())
                             .foregroundColor(.gray)
                             .frame(maxWidth: .infinity)
                     }
@@ -365,7 +365,7 @@ struct AddProjectScreen: View {
                                             .frame(width: 34, height: 34)
                                     }
                                     Text("\(day)")
-                                        .font(.system(size: 14))
+                                        .font(.subheadline)
                                         .foregroundColor(selectedDay == day ? .white : .black)
                                 }
                                 .frame(height: 36)
@@ -382,14 +382,14 @@ struct AddProjectScreen: View {
             
             HStack {
                 Text("Time")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.subheadline.bold())
                     .foregroundColor(.black)
                 
                 Spacer()
                 
                 HStack(spacing: 10) {
                     Text("12:00")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.subheadline.bold())
                         .foregroundColor(.black)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 9)
@@ -402,7 +402,7 @@ struct AddProjectScreen: View {
                     HStack(spacing: 0) {
                         Button(action: { isAM = true }) {
                             Text("AM")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline.bold())
                                 .foregroundColor(isAM ? .white : .black)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)
@@ -411,7 +411,7 @@ struct AddProjectScreen: View {
                         }
                         Button(action: { isAM = false }) {
                             Text("PM")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline.bold())
                                 .foregroundColor(!isAM ? .white : .black)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)

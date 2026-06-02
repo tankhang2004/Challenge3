@@ -81,7 +81,7 @@ struct DetailProjectScreen: View {
     var topicSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Topic")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -92,7 +92,7 @@ struct DetailProjectScreen: View {
                     )
 
                 TextEditor(text: $topic)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .foregroundColor(.black)
                     .scrollContentBackground(.hidden)
                     .padding(8)
@@ -260,7 +260,7 @@ struct DetailProjectScreen: View {
     var scriptSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Script")
-                .font(.system(size: 17, weight: .bold))
+                .font(.body.bold())
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -271,7 +271,7 @@ struct DetailProjectScreen: View {
                     )
 
                 TextEditor(text: $script)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .foregroundColor(.black)
                     .scrollContentBackground(.hidden)
                     .padding(8)
@@ -284,7 +284,7 @@ struct DetailProjectScreen: View {
     var footageSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Footage")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             VStack(spacing: 12) {
                 HStack(spacing: 10) {
@@ -295,7 +295,7 @@ struct DetailProjectScreen: View {
                             .fill(Color.white.opacity(0.88))
                             .frame(width: 36, height: 36)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 12))
+                            .font(.caption)
                             .foregroundColor(Color(hex: "E67740"))
                             .offset(x: 2)
                     }
@@ -307,14 +307,14 @@ struct DetailProjectScreen: View {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.28))
                         Text("A Day\nIn My Life")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.caption2)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                         Circle()
                             .fill(Color.white.opacity(0.88))
                             .frame(width: 36, height: 36)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 12))
+                            .font(.caption)
                             .foregroundColor(Color(hex: "E67740"))
                             .offset(x: 2)
                     }
@@ -329,7 +329,7 @@ struct DetailProjectScreen: View {
                             .fill(Color.white.opacity(0.88))
                             .frame(width: 36, height: 36)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 12))
+                            .font(.caption2)
                             .foregroundColor(Color(hex: "E67740"))
                             .offset(x: 2)
                     }
@@ -340,7 +340,7 @@ struct DetailProjectScreen: View {
 
                 Button(action: {}) {
                     Text("+ Add More")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.subheadline.bold())
                         .foregroundColor(Color(hex: "E67740"))
                 }
                 .frame(maxWidth: .infinity)
@@ -358,7 +358,7 @@ struct DetailProjectScreen: View {
     var captionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Caption")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -369,7 +369,7 @@ struct DetailProjectScreen: View {
                     )
 
                 TextEditor(text: $caption)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .foregroundColor(.black)
                     .scrollContentBackground(.hidden)
                     .padding(8)
@@ -382,7 +382,7 @@ struct DetailProjectScreen: View {
     var musicSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Music Selection")
-                .font(.system(size: 17, weight: .bold))
+                .font(.body)
 
             HStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 8)
@@ -398,10 +398,10 @@ struct DetailProjectScreen: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Aesthetic Lofi Chill")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.subheadline.bold())
                         .foregroundColor(.black)
                     Text("By Lio ADA")
-                        .font(.system(size: 13))
+                        .font(.footnote)
                         .foregroundColor(.gray)
                 }
 
@@ -409,7 +409,7 @@ struct DetailProjectScreen: View {
 
                 Button(action: { withAnimation { musicExpanded.toggle() } }) {
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.subheadline)
                         .foregroundColor(.black)
                         .rotationEffect(.degrees(musicExpanded ? 180 : 0))
                 }
@@ -423,17 +423,17 @@ struct DetailProjectScreen: View {
     var whenToPostSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("When to Post")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             VStack(spacing: 10) {
                 HStack {
                     Button(action: {}) {
                         HStack(spacing: 4) {
                             Text("April 2025")
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.subheadline)
                                 .foregroundColor(.black)
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.caption2.bold())
                                 .foregroundColor(.black)
                         }
                     }
@@ -443,12 +443,12 @@ struct DetailProjectScreen: View {
                     HStack(spacing: 16) {
                         Button(action: {}) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline)
                                 .foregroundColor(Color(hex: "3FA9F7"))
                         }
                         Button(action: {}) {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.subheadline)
                                 .foregroundColor(Color(hex: "3FA9F7"))
                         }
                     }
@@ -457,7 +457,7 @@ struct DetailProjectScreen: View {
                 HStack(spacing: 0) {
                     ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
                         Text(day)
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.caption2)
                             .foregroundColor(.gray)
                             .frame(maxWidth: .infinity)
                     }
@@ -477,7 +477,7 @@ struct DetailProjectScreen: View {
                                             .frame(width: 34, height: 34)
                                     }
                                     Text("\(day)")
-                                        .font(.system(size: 14))
+                                        .font(.subheadline)
                                         .foregroundColor(
                                             selectedDay == day ? .white :
                                             day == 21 ? Color(hex: "3FA9F7") : .black
@@ -497,14 +497,14 @@ struct DetailProjectScreen: View {
 
             HStack {
                 Text("Time")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.subheadline.bold())
                     .foregroundColor(.black)
 
                 Spacer()
 
                 HStack(spacing: 10) {
                     Text("3:00")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.subheadline.bold())
                         .foregroundColor(.black)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 9)
@@ -517,7 +517,7 @@ struct DetailProjectScreen: View {
                     HStack(spacing: 0) {
                         Button(action: { isAM = true }) {
                             Text("AM")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.footnote.bold())
                                 .foregroundColor(isAM ? .white : .black)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)
@@ -526,7 +526,7 @@ struct DetailProjectScreen: View {
                         }
                         Button(action: { isAM = false }) {
                             Text("PM")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.footnote.bold())
                                 .foregroundColor(!isAM ? .white : .black)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)

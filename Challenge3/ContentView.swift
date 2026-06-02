@@ -38,12 +38,12 @@ struct ContentView: View {
                 
                 VStack (alignment: .center, spacing: 16){
                     Text("Manage \nYour Contents \nWith Lumio")
-                        .font(.system(size: 36, weight: .heavy))
+                        .font(.largeTitle.bold())
                         .foregroundStyle(Color.white)
                         .lineSpacing(4)
                         .multilineTextAlignment(.center)
                     Text("Create, collaborate, and organize \nyour contents in one space.")
-                        .font(.system(size: 15))
+                        .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.85))
                         .multilineTextAlignment(.center)
                     
@@ -51,7 +51,7 @@ struct ContentView: View {
                         goToHome = true
                     } label: {
                      Text("Get Started")
-                         .font(.system(size: 28, weight: .bold))
+                            .font(.title.bold())
                          .foregroundStyle(Color.white)
                          .padding(.vertical, 18)
                          .frame(width: 198, height: 68)
