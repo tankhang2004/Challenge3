@@ -226,9 +226,7 @@ struct HomePageView: View {
                         .font(.system(size: 22, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 56, height: 56)
-                        .background(Color.brandOrange)
-                        .clipShape(Circle())
-                        .shadow(color: Color.brandOrange.opacity(0.4), radius: 8, x: 0, y: 4)
+                        .glassEffect(.regular.tint(Color.brandOrange.opacity(0.85)), in: .circle)
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 28)
