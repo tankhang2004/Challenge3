@@ -68,10 +68,8 @@ struct ContentView: View {
                  .navigationDestination(isPresented: $goToHome) {
                      HomePageView()
                     }
-                           
                 }
                 .offset(y: 130)
-                
             }
         }
     }

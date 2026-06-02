@@ -43,14 +43,6 @@ let sampleSections: [MenuSection] = [
     )
 ]
 
-// MARK: - Colors
-
-extension Color {
-    static let brandBlue   = Color(red: 89/255,  green: 193/255, blue: 253/255)
-    static let brandOrange = Color(red: 253/255, green: 144/255, blue: 89/255)
-    static let pageBg      = Color(red: 246/255, green: 249/255, blue: 254/255)
-}
-
 // MARK: - Menu Card
 
 struct MenuCard: View {
@@ -60,7 +52,7 @@ struct MenuCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Image placeholder area
             ZStack {
-                Color.white
+                Color("CardColor")
                 Image(systemName: "photo")
                     .resizable()
                     .scaledToFit()
@@ -72,7 +64,7 @@ struct MenuCard: View {
 
             // Label
             ZStack(alignment: .leading) {
-                Color.brandBlue
+                Color("BrandBlue")
                 Text(item.title)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.white)
@@ -93,10 +85,10 @@ struct MenuDetailView: View {
 
     var body: some View {
         ZStack {
-            Color.pageBg.ignoresSafeArea()
+            Color("PageColor").ignoresSafeArea()
             VStack(spacing: 16) {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.brandBlue.opacity(0.25))
+                    .fill(Color("BrandBlue").opacity(0.25))
                     .frame(height: 220)
                     .overlay(
                         Image(systemName: "photo")
@@ -138,7 +130,7 @@ struct HomePageView: View {
     var body: some View {
 //        NavigationStack{
             ZStack(alignment: .bottomTrailing) {
-                Color.pageBg.ignoresSafeArea()
+                Color("PageColor").ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -154,7 +146,7 @@ struct HomePageView: View {
                             Spacer()
                             // Profile circle
                             Circle()
-                                .fill(Color.brandBlue)
+                                .fill(Color("BrandBlue"))
                                 .frame(width: 48, height: 48)
                         }
                         .padding(.horizontal, 20)
@@ -173,18 +165,18 @@ struct HomePageView: View {
                                         .padding(.vertical, 7)
                                         .background(
                                             selectedFilter == filter
-                                            ? Color.brandOrange
+                                            ? Color("BrandOrange")
                                             : Color.clear
                                         )
                                         .foregroundColor(
-                                            selectedFilter == filter ? .white : Color.brandBlue
+                                            selectedFilter == filter ? .white : Color("BrandBlue")
                                         )
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 20)
                                                 .stroke(
                                                     selectedFilter == filter
-                                                    ? Color.brandOrange
-                                                    : Color.brandBlue,
+                                                    ? Color("BrandOrange")
+                                                    : Color("BrandBlue"),
                                                     lineWidth: 1.5
                                                 )
                                         )
@@ -226,9 +218,7 @@ struct HomePageView: View {
                         .font(.system(size: 22, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 56, height: 56)
-                        .background(Color.brandOrange)
-                        .clipShape(Circle())
-                        .shadow(color: Color.brandOrange.opacity(0.4), radius: 8, x: 0, y: 4)
+                        .glassEffect(.regular.tint(Color("BrandOrange").opacity(0.85)), in: .circle)
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 28)
