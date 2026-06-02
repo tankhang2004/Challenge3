@@ -81,7 +81,7 @@ class ShareViewController: UIViewController {
                 UTType.url.identifier
             ) {
 
-                provider.loadObject(ofClass: URL.self) {
+                _ = provider.loadObject(ofClass: URL.self) {
                     url, error in
 
                     guard let url = url else { return }

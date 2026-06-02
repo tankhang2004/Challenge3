@@ -12,13 +12,9 @@ struct URLPreviewView: UIViewRepresentable {
         let provider = LPMetadataProvider()
 
         provider.startFetchingMetadata(for: url) { metadata, error in
-
             if let metadata = metadata {
                 DispatchQueue.main.async {
                     view.metadata = metadata
-                    // 🔥 important: prevent layout explosion
-//                      view.sizeToFit()
-                    // 🔥 important: resets internal layout
                     view.invalidateIntrinsicContentSize()
                     view.setNeedsLayout()
                     view.layoutIfNeeded()
@@ -52,11 +48,10 @@ struct DetailProjectScreen: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(hex: "F6F9FE").ignoresSafeArea()
+                Color.pageBackground.ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
-//                        importedSection
                         topicSection
                         referencesSection
                         scriptSection
@@ -71,54 +66,28 @@ struct DetailProjectScreen: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {}) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 16, weight: .semibold))
-                            Text("Vlog A Day in My Life")
-                                .font(.system(size: 17, weight: .semibold))
-                        }
-                        .foregroundColor(Color(hex: "3FA9F7"))
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {}) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(hex: "3FA9F7"))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    }
-                }
-            }
         }
         .onAppear {
-            sharedContents =
-                SharedContentManager.shared.load()
+            sharedContents = SharedContentManager.shared.load()
         }
     }
 
     var topicSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Topic")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
+                    .fill(Color.cardSurface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
+                            .stroke(Color.brandBlue, lineWidth: 1.5)
                     )
 
                 TextEditor(text: $topic)
-                    .font(.system(size: 15))
-                    .foregroundColor(.black)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
                     .scrollContentBackground(.hidden)
                     .padding(8)
                     .frame(minHeight: 72)
@@ -130,174 +99,23 @@ struct DetailProjectScreen: View {
     var referencesSection: some View {
         ReferencesSection()
     }
-//    var referencesSection: some View {
-//        VStack(alignment: .leading, spacing: 12) {
-//            HStack {
-//                Text("References")
-//                    .font(.system(size: 17, weight: .bold))
-//                Spacer()
-//                Button(action: {}) {
-//                    ZStack {
-//                        Circle()
-//                            .fill(Color(hex: "3FA9F7"))
-//                            .frame(width: 34, height: 34)
-//                        Image(systemName: "plus")
-//                            .font(.system(size: 15, weight: .bold))
-//                            .foregroundColor(.white)
-//                    }
-//                }
-//            }
-//
-//            ScrollView(.horizontal, showsIndicators: false) {
-//                HStack(spacing: 12) {
-//
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        ZStack(alignment: .top) {
-//                            Image("Reference1")
-//                                .resizable()
-//                                .scaledToFill()
-//                                .frame(width: 160, height: 130)
-//                                .clipped()
-//
-//                            Text("A Day in my Life as Student")
-//                                .font(.system(size: 11, weight: .semibold))
-//                                .foregroundColor(.white)
-//                                .multilineTextAlignment(.center)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 6)
-//                                .frame(width: 160, alignment: .center)
-//                                .background(Color.black.opacity(0.3))
-//                        }
-//                        .frame(width: 160, height: 130)
-//
-//                        HStack(spacing: 6) {
-//                            Image("Instagram")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 22, height: 22)
-//                                .cornerRadius(6)
-//                            VStack(alignment: .leading, spacing: 1) {
-//                                Text("@bibi")
-//                                    .font(.system(size: 11, weight: .semibold))
-//                                    .foregroundColor(.black)
-//                                Text("Instagram.com")
-//                                    .font(.system(size: 10))
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        .padding(.horizontal, 8)
-//                        .padding(.vertical, 8)
-//                    }
-//                    .frame(width: 160)
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-//
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        ZStack(alignment: .top) {
-//                            Image("Reference2")
-//                                .resizable()
-//                                .scaledToFill()
-//                                .frame(width: 160, height: 130)
-//                                .clipped()
-//
-//                            Text("A Day in my Life as International")
-//                                .font(.system(size: 11, weight: .semibold))
-//                                .foregroundColor(.white)
-//                                .multilineTextAlignment(.center)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 6)
-//                                .frame(width: 160, alignment: .center)
-//                                .background(Color.black.opacity(0.3))
-//                        }
-//                        .frame(width: 160, height: 130)
-//
-//                        HStack(spacing: 6) {
-//                            Image("Tiktok")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 22, height: 22)
-//                                .cornerRadius(6)
-//                            VStack(alignment: .leading, spacing: 1) {
-//                                Text("@asaylife")
-//                                    .font(.system(size: 11, weight: .semibold))
-//                                    .foregroundColor(.black)
-//                                Text("tiktok.com")
-//                                    .font(.system(size: 10))
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        .padding(.horizontal, 8)
-//                        .padding(.vertical, 8)
-//                    }
-//                    .frame(width: 160)
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-//
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        ZStack(alignment: .top) {
-//                            Image("Reference3")
-//                                .resizable()
-//                                .scaledToFill()
-//                                .frame(width: 160, height: 130)
-//                                .clipped()
-//
-//                            Text("a day my life")
-//                                .font(.system(size: 11, weight: .semibold))
-//                                .foregroundColor(.white)
-//                                .multilineTextAlignment(.center)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 6)
-//                                .frame(width: 160, alignment: .center)
-//                                .background(Color.black.opacity(0.3))
-//                        }
-//                        .frame(width: 160, height: 130)
-//
-//                        HStack(spacing: 6) {
-//                            Image("Instagram")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 22, height: 22)
-//                                .cornerRadius(6)
-//                            VStack(alignment: .leading, spacing: 1) {
-//                                Text("@linta")
-//                                    .font(.system(size: 11, weight: .semibold))
-//                                    .foregroundColor(.black)
-//                                Text("Instagram.com")
-//                                    .font(.system(size: 10))
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        .padding(.horizontal, 8)
-//                        .padding(.vertical, 8)
-//                    }
-//                    .frame(width: 160)
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-//                }
-//                .padding(.vertical, 4)
-//            }
-//        }
-//    }
 
     var scriptSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Script")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
+                    .fill(Color.cardSurface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
+                            .stroke(Color.brandBlue, lineWidth: 1.5)
                     )
 
                 TextEditor(text: $script)
-                    .font(.system(size: 15))
-                    .foregroundColor(.black)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
                     .scrollContentBackground(.hidden)
                     .padding(8)
                     .frame(minHeight: 80)
@@ -309,7 +127,7 @@ struct DetailProjectScreen: View {
     var footageSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Footage")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             VStack(spacing: 12) {
                 HStack(spacing: 10) {
@@ -320,8 +138,8 @@ struct DetailProjectScreen: View {
                             .fill(Color.white.opacity(0.88))
                             .frame(width: 36, height: 36)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(hex: "E67740"))
+                            .font(.caption)
+                            .foregroundStyle(Color.brandOrange)
                             .offset(x: 2)
                     }
                     .frame(maxWidth: .infinity)
@@ -332,15 +150,15 @@ struct DetailProjectScreen: View {
                         RoundedRectangle(cornerRadius: 8)
                             .fill(Color.gray.opacity(0.28))
                         Text("A Day\nIn My Life")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.caption2)
+                            .foregroundStyle(.white)
                             .multilineTextAlignment(.center)
                         Circle()
                             .fill(Color.white.opacity(0.88))
                             .frame(width: 36, height: 36)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(hex: "E67740"))
+                            .font(.caption)
+                            .foregroundStyle(Color.brandOrange)
                             .offset(x: 2)
                     }
                     .frame(maxWidth: .infinity)
@@ -354,8 +172,8 @@ struct DetailProjectScreen: View {
                             .fill(Color.white.opacity(0.88))
                             .frame(width: 36, height: 36)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(hex: "E67740"))
+                            .font(.caption2)
+                            .foregroundStyle(Color.brandOrange)
                             .offset(x: 2)
                     }
                     .frame(maxWidth: .infinity)
@@ -365,17 +183,17 @@ struct DetailProjectScreen: View {
 
                 Button(action: {}) {
                     Text("+ Add More")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(hex: "E67740"))
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.brandOrange)
                 }
                 .frame(maxWidth: .infinity)
             }
             .padding(12)
-            .background(Color.white)
+            .background(Color.cardSurface)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
+                    .stroke(Color.brandBlue, lineWidth: 1.5)
             )
         }
     }
@@ -383,19 +201,19 @@ struct DetailProjectScreen: View {
     var captionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Caption")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
+                    .fill(Color.cardSurface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
+                            .stroke(Color.brandBlue, lineWidth: 1.5)
                     )
 
                 TextEditor(text: $caption)
-                    .font(.system(size: 15))
-                    .foregroundColor(.black)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
                     .scrollContentBackground(.hidden)
                     .padding(8)
                     .frame(minHeight: 90)
@@ -407,7 +225,7 @@ struct DetailProjectScreen: View {
     var musicSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Music Selection")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             HStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 8)
@@ -423,24 +241,25 @@ struct DetailProjectScreen: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Aesthetic Lofi Chill")
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.black)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.primary)
                     Text("By Lio ADA")
-                        .font(.system(size: 13))
-                        .foregroundColor(.gray)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
                 Button(action: { withAnimation { musicExpanded.toggle() } }) {
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.black)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(musicExpanded ? 180 : 0))
                 }
+                .accessibilityLabel("Toggle music details")
             }
             .padding(12)
-            .background(Color(hex: "FFE7DC"))
+            .background(Color.musicSectionBackground)
             .cornerRadius(14)
         }
     }
@@ -448,18 +267,18 @@ struct DetailProjectScreen: View {
     var whenToPostSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("When to Post")
-                .font(.system(size: 17, weight: .bold))
+                .font(.headline)
 
             VStack(spacing: 10) {
                 HStack {
                     Button(action: {}) {
                         HStack(spacing: 4) {
                             Text("April 2025")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(.black)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary)
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.black)
+                                .font(.caption2.bold())
+                                .foregroundStyle(.primary)
                         }
                     }
 
@@ -468,13 +287,13 @@ struct DetailProjectScreen: View {
                     HStack(spacing: 16) {
                         Button(action: {}) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Color(hex: "3FA9F7"))
+                                .font(.subheadline)
+                                .foregroundStyle(Color.brandBlue)
                         }
                         Button(action: {}) {
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Color(hex: "3FA9F7"))
+                                .font(.subheadline)
+                                .foregroundStyle(Color.brandBlue)
                         }
                     }
                 }
@@ -482,8 +301,8 @@ struct DetailProjectScreen: View {
                 HStack(spacing: 0) {
                     ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
                         Text(day)
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.gray)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity)
                     }
                 }
@@ -498,14 +317,15 @@ struct DetailProjectScreen: View {
                                 ZStack {
                                     if selectedDay == day {
                                         Circle()
-                                            .fill(Color(hex: "3FA9F7"))
+                                            .fill(Color.brandBlue)
                                             .frame(width: 34, height: 34)
                                     }
                                     Text("\(day)")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(
-                                            selectedDay == day ? .white :
-                                            day == 21 ? Color(hex: "3FA9F7") : .black
+                                        .font(.subheadline)
+                                        .foregroundStyle(
+                                            selectedDay == day ? Color.white
+                                            : day == 21 ? Color.brandBlue
+                                            : Color.primary
                                         )
                                 }
                                 .frame(height: 36)
@@ -517,85 +337,77 @@ struct DetailProjectScreen: View {
                 }
             }
             .padding(16)
-            .background(Color.white)
+            .background(Color.cardSurface)
             .cornerRadius(14)
 
             HStack {
                 Text("Time")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.black)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.primary)
 
                 Spacer()
 
                 HStack(spacing: 10) {
                     Text("3:00")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.black)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.primary)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 9)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
+                                .fill(Color.cardSurface)
+                                .shadow(color: Color(.label).opacity(0.08), radius: 3, x: 0, y: 1)
                         )
 
                     HStack(spacing: 0) {
                         Button(action: { isAM = true }) {
                             Text("AM")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(isAM ? .white : .black)
+                                .font(.footnote.bold())
+                                .foregroundStyle(isAM ? Color.white : Color.primary)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)
-                                .background(isAM ? Color(hex: "3FA9F7") : Color.clear)
+                                .background(isAM ? Color.brandBlue : Color.clear)
                                 .cornerRadius(isAM ? 10 : 0)
                         }
                         Button(action: { isAM = false }) {
                             Text("PM")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(!isAM ? .white : .black)
+                                .font(.footnote.bold())
+                                .foregroundStyle(!isAM ? Color.white : Color.primary)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)
-                                .background(!isAM ? Color(hex: "3FA9F7") : Color.clear)
+                                .background(!isAM ? Color.brandBlue : Color.clear)
                                 .cornerRadius(!isAM ? 10 : 0)
                         }
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
+                            .fill(Color.cardSurface)
+                            .shadow(color: Color(.label).opacity(0.08), radius: 3, x: 0, y: 1)
                     )
                     .cornerRadius(10)
                 }
             }
             .padding(16)
-            .background(Color.white)
+            .background(Color.cardSurface)
             .cornerRadius(14)
         }
     }
+
     var importedSection: some View {
-
         VStack(alignment: .leading, spacing: 12) {
-
             Text("Imported")
                 .font(.title2.bold())
 
             ForEach(sharedContents, id: \.id) { item in
-
                 VStack(alignment: .leading) {
-
                     switch item.type {
-
                     case .text:
-
                         Text(item.text ?? "")
 
                     case .url:
-
                         VStack(alignment: .leading, spacing: 10) {
-
                             if let urlString = item.url,
                                let url = URL(string: urlString) {
-
                                 URLPreviewView(url: url)
                                     .frame(height: 160)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -603,7 +415,7 @@ struct DetailProjectScreen: View {
                                 Link(destination: url) {
                                     Text(urlString)
                                         .font(.caption)
-                                        .foregroundColor(.blue)
+                                        .foregroundStyle(.tint)
                                         .lineLimit(2)
                                         .truncationMode(.middle)
                                 }
@@ -611,13 +423,8 @@ struct DetailProjectScreen: View {
                         }
 
                     case .image:
-
                         if let filename = item.imageFilename,
-                           let image =
-                            SharedContentManager.shared
-                                .loadImage(filename: filename)
-                        {
-
+                           let image = SharedContentManager.shared.loadImage(filename: filename) {
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFit()
@@ -626,7 +433,7 @@ struct DetailProjectScreen: View {
                     }
                 }
                 .padding()
-                .background(Color.white)
+                .background(Color.cardSurface)
                 .cornerRadius(12)
             }
         }
