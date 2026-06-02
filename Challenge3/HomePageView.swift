@@ -35,7 +35,7 @@ let sampleSections: [MenuSection] = [
         ]
     ),
     MenuSection(
-        dateLabel: "Monday (May, 25th)",
+        dateLabel: "Monday (May, 18th)",
         items: [
             MenuItem(title: "Menu Lebaran Idul Adha", date: "Monday (May, 25th)", image: nil),
             MenuItem(title: "Menu Lebaran Idul Adha", date: "Monday (May, 25th)", image: nil),

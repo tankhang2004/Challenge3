@@ -102,27 +102,42 @@ class ShareViewController: UIViewController {
 
             // TEXT
 
-            if provider.hasItemConformingToTypeIdentifier(
-                UTType.plainText.identifier
-            ) {
+            if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
 
-                provider.loadObject(ofClass: NSString.self) {
-                    text, error in
+                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { item, error in
 
-                    guard let text = text as? String
-                    else { return }
+                    if let error = error {
+                        print("❌ TEXT LOAD ERROR:")
+                        print(error)
+                        return
+                    }
 
-                    let content = SharedContent(
-                        id: UUID(),
-                        type: .text,
-                        text: text,
-                        url: nil,
-                        imageFilename: nil,
-                        createdAt: .now
-                    )
+                    if let text = item as? String {
 
-                    SharedContentManager.shared
-                        .add(content)
+                        let content = SharedContent(
+                            id: UUID(),
+                            type: .text,
+                            text: text,
+                            url: nil,
+                            imageFilename: nil,
+                            createdAt: .now
+                        )
+
+                        SharedContentManager.shared.add(content)
+                    } else if let data = item as? Data,
+                              let text = String(data: data, encoding: .utf8) {
+
+                        let content = SharedContent(
+                            id: UUID(),
+                            type: .text,
+                            text: text,
+                            url: nil,
+                            imageFilename: nil,
+                            createdAt: .now
+                        )
+
+                        SharedContentManager.shared.add(content)
+                    }
                 }
             }
         }
