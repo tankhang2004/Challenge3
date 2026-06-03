@@ -41,6 +41,8 @@ let sampleSections: [MenuSection] = [
 extension Color {
     static let brandBlue             = Color("BrandBlue")
     static let brandOrange           = Color("BrandOrange")
+    static let secondaryBlue         = Color("SecondaryBlue")
+    static let secondaryOrange       = Color("SecondaryOrange")
     static let pageBackground        = Color("PageBackground")
     static let cardSurface           = Color("CardSurface")
     static let musicSectionBackground = Color("MusicSectionBackground")
