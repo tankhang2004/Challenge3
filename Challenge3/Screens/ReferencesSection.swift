@@ -36,7 +36,7 @@ struct ReferencesSection: View {
             }) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "3FA9F7"))
+                        .fill(Color("3FA9F7"))
                         .frame(width: 34, height: 34)
 
                     Image(systemName: "plus")

@@ -61,7 +61,7 @@
       <RemoteRunnable
          runnableDebuggingMode = "0"
          BundleIdentifier = "com.apple.mobilesafari"
-         RemotePath = "/var/containers/Bundle/Application/1DE4ED08-701F-4009-99C5-09FE3C8BBE33/MobileSafari.app">
+         RemotePath = "/var/containers/Bundle/Application/9420A1E1-A49F-4D71-B108-38175867D426/MobileSafari.app">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference

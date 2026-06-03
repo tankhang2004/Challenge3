@@ -60,9 +60,16 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Screens/ShareAppScreen.swift,
-				Screens/SharedContent.swift,
-				Screens/SharedStorageManager.swift,
 				Screens/ShareGalleryScreen.swift,
+				Models/CaptionItem.swift,
+				Models/CreatorProject.swift,
+				Models/ReferenceItem.swift,
+				Models/ScriptItem.swift,
+				Models/VideoItem.swift,
+				Screens/Color.swift,
+				Screens/URLPreviewView.swift,
+				SharedContent.swift,
+				SharedStorageManager.swift,
 			);
 			target = B1CD2B052FC516B20086EAF4 /* Challenge3Ext */;
 		};
@@ -667,6 +674,7 @@
 				INFOPLIST_FILE = Challenge3Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Challenge3Ext;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -698,6 +706,7 @@
 				INFOPLIST_FILE = Challenge3Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Challenge3Ext;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

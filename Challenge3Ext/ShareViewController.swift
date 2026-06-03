@@ -1,148 +1,256 @@
+//
+//  ShareViewController.swift
+//  LumioShareExtension
+//
+
 import UIKit
 import UniformTypeIdentifiers
 import SwiftUI
+import SwiftData
 
 class ShareViewController: UIViewController {
-
+    
+    private var sharedText: String?
+    private var sharedURL: String?
+    private var sharedImage: UIImage?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        processSharedContent()
-
-        let rootView = ShareRootView {
-
-            self.extensionContext?.completeRequest(
-                returningItems: [],
-                completionHandler: nil
-            )
-        }
-
-        let hosting = UIHostingController(
-            rootView: rootView
-        )
-
-        addChild(hosting)
-
-        hosting.view.frame = view.bounds
-
-        view.addSubview(hosting.view)
-
-        hosting.didMove(toParent: self)
+        extractAndLoadInterface()
     }
-
-    private func processSharedContent() {
-
-        guard
-            let item = extensionContext?.inputItems.first
-                as? NSExtensionItem,
-
-            let attachments = item.attachments
-        else {
+    
+    private func extractAndLoadInterface() {
+        guard let item = extensionContext?.inputItems.first as? NSExtensionItem,
+              let attachments = item.attachments else {
+            self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
             return
         }
-
+        
+        let dispatchGroup = DispatchGroup()
+        
         for provider in attachments {
-
-            // IMAGE
-
-            if provider.hasItemConformingToTypeIdentifier(
-                UTType.image.identifier
-            ) {
-
-                provider.loadObject(ofClass: UIImage.self) {
-                    image, error in
-
-                    guard let image = image as? UIImage
-                    else { return }
-
-                    if let filename =
-                        SharedContentManager.shared
-                            .saveImage(image)
-                    {
-
-                        let content = SharedContent(
-                            id: UUID(),
-                            type: .image,
-                            text: nil,
-                            url: nil,
-                            imageFilename: filename,
-                            createdAt: .now
-                        )
-
-                        SharedContentManager.shared
-                            .add(content)
-                    }
+            // Extrapolate Images
+            if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                dispatchGroup.enter()
+                provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
+                    self?.sharedImage = image as? UIImage
+                    dispatchGroup.leave()
                 }
             }
-
-            // URL
-
-            if provider.hasItemConformingToTypeIdentifier(
-                UTType.url.identifier
-            ) {
-
-                provider.loadObject(ofClass: URL.self) {
-                    url, error in
-
-                    guard let url = url else { return }
-
-                    let content = SharedContent(
-                        id: UUID(),
-                        type: .url,
-                        text: nil,
-                        url: url.absoluteString,
-                        imageFilename: nil,
-                        createdAt: .now
-                    )
-
-                    SharedContentManager.shared
-                        .add(content)
+            
+            // Extrapolate URLs
+            if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                dispatchGroup.enter()
+                provider.loadObject(ofClass: URL.self) { [weak self] url, _ in
+                    self?.sharedURL = url?.absoluteString
+                    dispatchGroup.leave()
                 }
             }
-
-            // TEXT
-
+            
+            // Extrapolate Texts
             if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-
-                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { item, error in
-
-                    if let error = error {
-                        print("❌ TEXT LOAD ERROR:")
-                        print(error)
-                        return
-                    }
-
+                dispatchGroup.enter()
+                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { [weak self] item, _ in
                     if let text = item as? String {
-
-                        let content = SharedContent(
-                            id: UUID(),
-                            type: .text,
-                            text: text,
-                            url: nil,
-                            imageFilename: nil,
-                            createdAt: .now
-                        )
-
-                        SharedContentManager.shared.add(content)
-                    } else if let data = item as? Data,
-                              let text = String(data: data, encoding: .utf8) {
-
-                        let content = SharedContent(
-                            id: UUID(),
-                            type: .text,
-                            text: text,
-                            url: nil,
-                            imageFilename: nil,
-                            createdAt: .now
-                        )
-
-                        SharedContentManager.shared.add(content)
+                        self?.sharedText = text
+                    } else if let data = item as? Data {
+                        self?.sharedText = String(data: data, encoding: .utf8)
                     }
+                    dispatchGroup.leave()
                 }
             }
         }
+        
+        // Present selection user interface after extraction threads resolve safely
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            self?.presentSwiftUIInterface()
+        }
+    }
+    
+    private func presentSwiftUIInterface() {
+        let onDoneHandler: () -> Void = { [weak self] in
+            self?.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        }
+        
+        let rootView = ShareRootView(
+            rawText: sharedText,
+            rawURL: sharedURL,
+            rawImage: sharedImage,
+            onDone: onDoneHandler
+        )
+        
+        // Link extension container data store configs to match app container shared URL parameters
+        let sharedConfiguration = ModelConfiguration(
+            url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Lumio")!
+                .appendingPathComponent("LumioData.sqlite")
+        )
+        
+        guard let container = try? ModelContainer(for: CreatorProject.self, configurations: sharedConfiguration) else {
+            onDoneHandler()
+            return
+        }
+        
+        // Attach SwiftData injection stack directly onto host pipeline mapping parameters
+        let hosting = UIHostingController(
+            rootView: rootView.modelContainer(container)
+        )
+        print("📍 APP GROUP URL:", FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.Lumio"
+        ) as Any)
+        addChild(hosting)
+        hosting.view.frame = view.bounds
+        hosting.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(hosting.view)
+        hosting.didMove(toParent: self)
+        
+        
     }
 }
+//import UIKit
+//import UniformTypeIdentifiers
+//import SwiftUI
+//
+//class ShareViewController: UIViewController {
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//
+//        processSharedContent()
+//
+//        let rootView = ShareRootView {
+//
+//            self.extensionContext?.completeRequest(
+//                returningItems: [],
+//                completionHandler: nil
+//            )
+//        }
+//
+//        let hosting = UIHostingController(
+//            rootView: rootView
+//        )
+//
+//        addChild(hosting)
+//
+//        hosting.view.frame = view.bounds
+//
+//        view.addSubview(hosting.view)
+//
+//        hosting.didMove(toParent: self)
+//    }
+//
+//    private func processSharedContent() {
+//
+//        guard
+//            let item = extensionContext?.inputItems.first
+//                as? NSExtensionItem,
+//
+//            let attachments = item.attachments
+//        else {
+//            return
+//        }
+//
+//        for provider in attachments {
+//
+//            // IMAGE
+//
+//            if provider.hasItemConformingToTypeIdentifier(
+//                UTType.image.identifier
+//            ) {
+//
+//                provider.loadObject(ofClass: UIImage.self) {
+//                    image, error in
+//
+//                    guard let image = image as? UIImage
+//                    else { return }
+//
+//                    if let filename =
+//                        SharedContentManager.shared
+//                            .saveImage(image)
+//                    {
+//
+//                        let content = SharedContent(
+//                            id: UUID(),
+//                            type: .image,
+//                            text: nil,
+//                            url: nil,
+//                            imageFilename: filename,
+//                            createdAt: .now
+//                        )
+//
+//                        SharedContentManager.shared
+//                            .add(content)
+//                    }
+//                }
+//            }
+//
+//            // URL
+//
+//            if provider.hasItemConformingToTypeIdentifier(
+//                UTType.url.identifier
+//            ) {
+//
+//                provider.loadObject(ofClass: URL.self) {
+//                    url, error in
+//
+//                    guard let url = url else { return }
+//
+//                    let content = SharedContent(
+//                        id: UUID(),
+//                        type: .url,
+//                        text: nil,
+//                        url: url.absoluteString,
+//                        imageFilename: nil,
+//                        createdAt: .now
+//                    )
+//
+//                    SharedContentManager.shared
+//                        .add(content)
+//                }
+//            }
+//
+//            // TEXT
+//
+//            if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+//
+//                provider.loadItem(forTypeIdentifier: UTType.plainText.identifier, options: nil) { item, error in
+//
+//                    if let error = error {
+//                        print("❌ TEXT LOAD ERROR:")
+//                        print(error)
+//                        return
+//                    }
+//
+//                    if let text = item as? String {
+//
+//                        let content = SharedContent(
+//                            id: UUID(),
+//                            type: .text,
+//                            text: text,
+//                            url: nil,
+//                            imageFilename: nil,
+//                            createdAt: .now
+//                        )
+//
+//                        SharedContentManager.shared.add(content)
+//                    } else if let data = item as? Data,
+//                              let text = String(data: data, encoding: .utf8) {
+//
+//                        let content = SharedContent(
+//                            id: UUID(),
+//                            type: .text,
+//                            text: text,
+//                            url: nil,
+//                            imageFilename: nil,
+//                            createdAt: .now
+//                        )
+//
+//                        SharedContentManager.shared.add(content)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 //import SwiftUI
 //import Social
