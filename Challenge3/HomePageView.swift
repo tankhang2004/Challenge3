@@ -538,7 +538,7 @@ struct HomePageView: View {
             }
         } label: {
             Circle()
-                .fill(isActive ? AnyShapeStyle(Color.brandBlue) : AnyShapeStyle(.ultraThinMaterial))
+                .fill(isActive ? AnyShapeStyle(Color.brandOrange) : AnyShapeStyle(.ultraThinMaterial))
                 .frame(width: 42, height: 42)
                 .overlay(
                     Image(systemName: "line.3.horizontal.decrease")
@@ -609,7 +609,7 @@ struct HomePageView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
-        .background(isActive ? AnyShapeStyle(Color.brandBlue) : AnyShapeStyle(.ultraThinMaterial))
+        .background(isActive ? AnyShapeStyle(Color.brandOrange) : AnyShapeStyle(.ultraThinMaterial))
         .foregroundStyle(isActive ? Color.white : Color.primary)
         .clipShape(Capsule())
         .shadow(color: Color(.label).opacity(0.07), radius: 3, x: 0, y: 1)
