@@ -373,9 +373,7 @@ struct HomePageView: View {
                                 .font(.title2.bold())
                                 .foregroundStyle(.white)
                                 .frame(width: 56, height: 56)
-                                .background(Color.brandOrange)
-                                .clipShape(Circle())
-                                .shadow(color: Color.brandOrange.opacity(0.4), radius: 8, x: 0, y: 4)
+                                .glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)), in: .circle)
                         }
                         .accessibilityLabel("Add new project")
                     }
@@ -438,6 +436,7 @@ struct HomePageView: View {
                 .presentationDetents([.fraction(0.42)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
+                .presentationBackground(Color(.systemBackground).opacity(0.45))
             }
         }
     }
@@ -475,14 +474,12 @@ struct HomePageView: View {
                     Button {
                         withAnimation { clearAllFilters() }
                     } label: {
-                        Circle()
-                            .fill(AnyShapeStyle(.ultraThinMaterial))
+                        Image(systemName: "xmark")
+                            .font(.footnote.bold())
+                            .foregroundStyle(Color.primary)
                             .frame(width: 42, height: 42)
-                            .overlay(
-                                Image(systemName: "xmark")
-                                    .font(.footnote.bold())
-                                    .foregroundStyle(Color.primary)
-                            )
+                            .glassEffect(.regular, in: .circle)
+                            .clipShape(Circle())
                             .shadow(color: Color(.label).opacity(0.07), radius: 3, x: 0, y: 1)
                     }
                     .accessibilityLabel("Clear all filters")
@@ -537,15 +534,17 @@ struct HomePageView: View {
                 Label("Select", systemImage: "checkmark.circle")
             }
         } label: {
-            Circle()
-                .fill(isActive ? AnyShapeStyle(Color.brandOrange) : AnyShapeStyle(.ultraThinMaterial))
-                .frame(width: 42, height: 42)
-                .overlay(
-                    Image(systemName: "line.3.horizontal.decrease")
-                        .font(.footnote.bold())
-                        .foregroundStyle(isActive ? Color.white : Color.primary)
-                )
-                .shadow(color: Color(.label).opacity(0.07), radius: 3, x: 0, y: 1)
+            Button {
+                withAnimation { isSelecting = true }
+            } label: {
+                Image(systemName: "line.3.horizontal.decrease")
+                    .font(.footnote.bold())
+                    .foregroundStyle(isActive ? Color.white : Color.primary)
+                    .frame(width: 42, height: 42)
+                    .glassEffect(isActive ? .regular.tint(Color("BrandOrange").opacity(0.8)) : .regular, in: .circle)
+                    .clipShape(Circle())
+                    .shadow(color: Color(.label).opacity(0.07), radius: 3, x: 0, y: 1)
+            }
         }
     }
 
@@ -609,7 +608,7 @@ struct HomePageView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
-        .background(isActive ? AnyShapeStyle(Color.brandOrange) : AnyShapeStyle(.ultraThinMaterial))
+        .glassEffect((isActive ? .regular.tint(Color("BrandOrange").opacity(0.8)) : .regular), in: .capsule)
         .foregroundStyle(isActive ? Color.white : Color.primary)
         .clipShape(Capsule())
         .shadow(color: Color(.label).opacity(0.07), radius: 3, x: 0, y: 1)

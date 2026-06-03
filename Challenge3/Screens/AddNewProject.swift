@@ -24,8 +24,10 @@ struct AddNewProjectView: View {
 
             TextField("Project's Name", text: $projectName)
                 .padding()
-                .background(Color(.systemFill))
-                .cornerRadius(12)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.3), lineWidth: 1))
+                .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 1)
 
             HStack(spacing: 12) {
 
@@ -36,9 +38,10 @@ struct AddNewProjectView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(.systemFill))
-                        .foregroundStyle(.primary)
-                        .cornerRadius(12)
+                        .overlay(Capsule().stroke(Color.white.opacity(0.25), lineWidth: 1))
+                        .glassEffect(.regular, in: .capsule)
+                        .foregroundStyle(Color(.secondaryBlue))
+                        .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 1)
                 }
 
                 Button {
@@ -50,9 +53,10 @@ struct AddNewProjectView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(isNextDisabled ? Color.brandBlue.opacity(0.35) : Color.brandBlue)
+                        .overlay(Capsule().stroke(Color.white.opacity(0.4), lineWidth: 1))
+                        .glassEffect(.regular.tint(Color("BrandBlue").opacity(isNextDisabled ? 0.35 : 0.85)),in: .capsule)
                         .foregroundStyle(.white)
-                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 1)
                 }
                 .disabled(isNextDisabled)
             }
