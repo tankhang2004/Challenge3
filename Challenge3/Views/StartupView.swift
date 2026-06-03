@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+struct StartupView: View {
     @State private var goToHome = false
 
     var body: some View {
@@ -76,11 +76,11 @@ struct ContentView: View {
             .offset(y: 180)
         }
         .fullScreenCover(isPresented: $goToHome) {
-            HomePageView()
+            HomePageScreen()
         }
     }
 }
 
 #Preview {
-    ContentView()
+    StartupView()
 }

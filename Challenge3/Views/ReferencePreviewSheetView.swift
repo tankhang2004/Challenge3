@@ -79,10 +79,10 @@ struct ReferencePreviewSheetView: View {
                         if !payload.platform.isEmpty {
                             Text(payload.platform)
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(Color("3FA9F7"))
+                                .foregroundColor(Color.brandBlue)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(Color("3FA9F7").opacity(0.12))
+                                .background(Color.brandBlue.opacity(0.12))
                                 .clipShape(Capsule())
                         }
                     }
@@ -95,10 +95,10 @@ struct ReferencePreviewSheetView: View {
                                 Text("Open Link")
                             }
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color.primary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color("3FA9F7"))
+                            .background(Color.brandBlue)
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -113,10 +113,10 @@ struct ReferencePreviewSheetView: View {
                                 Text("Download Image")
                             }
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(Color("3FA9F7"))
+                            .foregroundColor(Color.brandBlue)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color("3FA9F7").opacity(0.12))
+                            .background(Color.brandBlue.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -170,7 +170,7 @@ struct ReferencePreviewSheetView: View {
                                         HStack {
                                             Image(systemName: "doc.text")
                                                 .font(.system(size: 22, weight: .semibold))
-                                                .foregroundColor(Color("3FA9F7"))
+                                                .foregroundColor(Color.brandBlue)
                                             Spacer()
                                         }
 
@@ -182,10 +182,10 @@ struct ReferencePreviewSheetView: View {
 
                                         HStack(spacing: 8) {
                                             Image(systemName: "text.quote")
-                                                .foregroundColor(Color("3FA9F7"))
+                                                .foregroundColor(Color.brandBlue)
                                             Text("Full text preview")
                                                 .font(.system(size: 13, weight: .semibold))
-                                                .foregroundColor(Color("3FA9F7"))
+                                                .foregroundColor(Color.brandBlue)
                                         }
                                     }
                                     .padding(20)
@@ -193,7 +193,7 @@ struct ReferencePreviewSheetView: View {
                                 }
                                 .background(
                                     LinearGradient(
-                                        colors: [Color("3FA9F7").opacity(0.18), Color("3FA9F7").opacity(0.06)],
+                                        colors: [Color.brandBlue.opacity(0.18), Color.brandBlue.opacity(0.06)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
@@ -202,7 +202,7 @@ struct ReferencePreviewSheetView: View {
                                 VStack(spacing: 12) {
                                     Image(systemName: "doc.text.magnifyingglass")
                                         .font(.system(size: 36, weight: .semibold))
-                                        .foregroundColor(Color("3FA9F7"))
+                                        .foregroundColor(Color.brandBlue)
                                     Text("No preview available")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundColor(.gray)
@@ -210,7 +210,7 @@ struct ReferencePreviewSheetView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background(
                                     LinearGradient(
-                                        colors: [Color("3FA9F7").opacity(0.16), Color("3FA9F7").opacity(0.06)],
+                                        colors: [Color.brandBlue.opacity(0.16), Color.brandBlue.opacity(0.06)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
