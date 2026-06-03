@@ -57,6 +57,17 @@ enum SortOption: String, CaseIterable {
     case title       = "Title"
 }
 
+
+extension UIWindowScene {
+    static var cornerRadius: CGFloat {
+           UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first?
+                .keyWindow?
+                .screen
+                .value(forKey: "displayCornerRadius") as? CGFloat ?? 44
+    }
+}
 // MARK: - Menu Card
 
 struct MenuCard: View {
@@ -435,7 +446,7 @@ struct HomePageView: View {
                 }
                 .presentationDetents([.fraction(0.42)])
                 .presentationDragIndicator(.visible)
-                .presentationCornerRadius(24)
+                .presentationCornerRadius(UIWindowScene.cornerRadius)
                 .presentationBackground(Color(.systemBackground).opacity(0.45))
             }
         }
