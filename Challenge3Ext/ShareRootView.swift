@@ -62,7 +62,7 @@ struct ShareRootView: View {
                                     Spacer()
                                     if selectedProject?.id == project.id {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(Color("3FA9F7"))
+                                            .foregroundColor(Color.brandBlue)
                                     }
                                 }
                                 .contentShape(Rectangle())
@@ -80,7 +80,7 @@ struct ShareRootView: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
-                                .background(selectedProject == nil ? Color.gray : Color("3FA9F7"))
+                                .background(selectedProject == nil ? Color.gray : Color.brandBlue)
                                 .cornerRadius(12)
                         }
                         .disabled(selectedProject == nil)
@@ -101,7 +101,7 @@ struct ShareRootView: View {
                             onDone()
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(Color("3FA9F7"))
+                        .tint(Color.brandBlue)
                     }
                     .padding()
                 }

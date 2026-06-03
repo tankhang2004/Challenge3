@@ -45,7 +45,7 @@ struct Challenge3App: App {
 
     var body: some Scene {
         WindowGroup {
-            HomePageView()
+            HomePageScreen()
         }
         .modelContainer(sharedContainer)
     }

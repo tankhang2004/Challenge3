@@ -1,3 +1,4 @@
+// CreatorProject.swift
 import Foundation
 import SwiftData
 
@@ -7,7 +8,7 @@ final class CreatorProject {
     var title: String
     var topic: String
     var createdAt: Date
-
+    var thumbnailFilename: String?
     @Relationship(deleteRule: .cascade)
     var scripts: [ScriptItem] = []
 
@@ -18,6 +19,9 @@ final class CreatorProject {
     var videos: [VideoItem] = []
 
     @Relationship(deleteRule: .cascade)
+    var images: [ImageItem] = []
+    
+    @Relationship(deleteRule: .cascade)
     var references: [ReferenceItem] = []
 
     var postDate: Date?
@@ -25,10 +29,13 @@ final class CreatorProject {
     init(
         title: String,
         topic: String,
-        createdAt: Date = .now
+        createdAt: Date = .now,
+        thumbnailFilename: String? = nil,
+        
     ) {
         self.title = title
         self.topic = topic
         self.createdAt = createdAt
+        self.thumbnailFilename = thumbnailFilename
     }
 }
