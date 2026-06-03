@@ -65,9 +65,9 @@
 				Models/ScriptItem.swift,
 				Models/VideoItem.swift,
 				Screens/Color.swift,
-				Screens/SharedContent.swift,
-				Screens/SharedStorageManager.swift,
 				Screens/URLPreviewView.swift,
+				SharedContent.swift,
+				SharedStorageManager.swift,
 			);
 			target = B1CD2B052FC516B20086EAF4 /* Challenge3Ext */;
 		};
