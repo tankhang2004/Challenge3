@@ -56,8 +56,8 @@ struct ContentView: View {
                         .background(
                             LinearGradient(
                                 gradient: Gradient(stops: [
-                                    .init(color: Color.brandOrange, location: 0),
-                                    .init(color: Color(red: 0.72, green: 0.37, blue: 0.20), location: 1)
+                                    .init(color: Color.secondaryOrange, location: 0),
+                                    .init(color: Color.brandOrange, location: 1)
                                 ]),
                                 startPoint: .top,
                                 endPoint: .bottom
