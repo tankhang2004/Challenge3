@@ -32,7 +32,7 @@ struct ReferencesSection: View {
             Button(action: { vm.refresh() }) {
                 ZStack {
                     Circle()
-                        .fill(Color.brandBlue)
+                        .fill(Color("3FA9F7"))
                         .frame(width: 34, height: 34)
                     Image(systemName: "plus")
                         .font(.subheadline.bold())

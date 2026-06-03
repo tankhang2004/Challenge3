@@ -8,16 +8,22 @@ final class ReferenceItem {
     var creator: String
     var platform: String
     var url: String
+    var imageFilename: String?
+    var fullText: String?
 
     init(
         title: String,
         creator: String,
         platform: String,
-        url: String
+        url: String,
+        imageFilename: String? = nil,
+        fullText: String? = nil
     ) {
         self.title = title
         self.creator = creator
         self.platform = platform
         self.url = url
+        self.imageFilename = imageFilename
+        self.fullText = fullText
     }
 }
