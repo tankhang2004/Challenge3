@@ -70,6 +70,7 @@ public struct AddProjectScreen: View {
                     scriptSection
                     footageSection
                     captionSection
+                    musicSection
                     whenToPostSection
                 }
                 .padding(.horizontal, 20)
