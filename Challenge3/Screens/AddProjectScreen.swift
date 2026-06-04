@@ -338,7 +338,7 @@ public struct AddProjectScreen: View {
             showValidationAlert = true
         }
         print("📍 APP GROUP URL:", FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
+            forSecurityApplicationGroupIdentifier: "group.Lumio"
         ) as Any)
     }
 

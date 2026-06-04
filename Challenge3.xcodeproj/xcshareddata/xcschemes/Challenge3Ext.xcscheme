@@ -31,8 +31,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B1CD2AD72FC516880086EAF4"
-               BuildableName = "Lumio for Content Creator.app"
-               BlueprintName = "Lumio for Content Creator"
+               BuildableName = "Challenge3.app"
+               BlueprintName = "Challenge3"
                ReferencedContainer = "container:Challenge3.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -67,8 +67,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B1CD2AD72FC516880086EAF4"
-            BuildableName = "Lumio for Content Creator.app"
-            BlueprintName = "Lumio for Content Creator"
+            BuildableName = "Challenge3.app"
+            BlueprintName = "Challenge3"
             ReferencedContainer = "container:Challenge3.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -86,8 +86,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B1CD2AD72FC516880086EAF4"
-            BuildableName = "Lumio for Content Creator.app"
-            BlueprintName = "Lumio for Content Creator"
+            BuildableName = "Challenge3.app"
+            BlueprintName = "Challenge3"
             ReferencedContainer = "container:Challenge3.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
