@@ -49,19 +49,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		B1CD2AD82FC516880086EAF4 /* Lumio for Content Creator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lumio for Content Creator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1CD2AD82FC516880086EAF4 /* Challenge3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Challenge3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1CD2AE52FC516890086EAF4 /* Challenge3Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Challenge3Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1CD2AEF2FC516890086EAF4 /* Challenge3UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Challenge3UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1CD2B062FC516B20086EAF4 /* Challenge3Ext.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Challenge3Ext.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B1567FF92FD0FD9200F3CA5B /* Exceptions for "Challenge3" folder in "Lumio for Content Creator" target */ = {
+		B1567FF92FD0FD9200F3CA5B /* Exceptions for "Challenge3" folder in "Challenge3" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = B1CD2AD72FC516880086EAF4 /* Lumio for Content Creator */;
+			target = B1CD2AD72FC516880086EAF4 /* Challenge3 */;
 		};
 		B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -104,7 +104,7 @@
 		B1CD2ADA2FC516880086EAF4 /* Challenge3 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				B1567FF92FD0FD9200F3CA5B /* Exceptions for "Challenge3" folder in "Lumio for Content Creator" target */,
+				B1567FF92FD0FD9200F3CA5B /* Exceptions for "Challenge3" folder in "Challenge3" target */,
 				B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */,
 			);
 			path = Challenge3;
@@ -176,7 +176,7 @@
 		B1CD2AD92FC516880086EAF4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B1CD2AD82FC516880086EAF4 /* Lumio for Content Creator.app */,
+				B1CD2AD82FC516880086EAF4 /* Challenge3.app */,
 				B1CD2AE52FC516890086EAF4 /* Challenge3Tests.xctest */,
 				B1CD2AEF2FC516890086EAF4 /* Challenge3UITests.xctest */,
 				B1CD2B062FC516B20086EAF4 /* Challenge3Ext.appex */,
@@ -187,9 +187,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B1CD2AD72FC516880086EAF4 /* Lumio for Content Creator */ = {
+		B1CD2AD72FC516880086EAF4 /* Challenge3 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B1CD2AF92FC516890086EAF4 /* Build configuration list for PBXNativeTarget "Lumio for Content Creator" */;
+			buildConfigurationList = B1CD2AF92FC516890086EAF4 /* Build configuration list for PBXNativeTarget "Challenge3" */;
 			buildPhases = (
 				B1CD2AD42FC516880086EAF4 /* Sources */,
 				B1CD2AD52FC516880086EAF4 /* Frameworks */,
@@ -204,11 +204,11 @@
 			fileSystemSynchronizedGroups = (
 				B1CD2ADA2FC516880086EAF4 /* Challenge3 */,
 			);
-			name = "Lumio for Content Creator";
+			name = Challenge3;
 			packageProductDependencies = (
 			);
 			productName = Challenge3;
-			productReference = B1CD2AD82FC516880086EAF4 /* Lumio for Content Creator.app */;
+			productReference = B1CD2AD82FC516880086EAF4 /* Challenge3.app */;
 			productType = "com.apple.product-type.application";
 		};
 		B1CD2AE42FC516890086EAF4 /* Challenge3Tests */ = {
@@ -319,7 +319,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B1CD2AD72FC516880086EAF4 /* Lumio for Content Creator */,
+				B1CD2AD72FC516880086EAF4 /* Challenge3 */,
 				B1CD2AE42FC516890086EAF4 /* Challenge3Tests */,
 				B1CD2AEE2FC516890086EAF4 /* Challenge3UITests */,
 				B1CD2B052FC516B20086EAF4 /* Challenge3Ext */,
@@ -392,12 +392,12 @@
 /* Begin PBXTargetDependency section */
 		B1CD2AE72FC516890086EAF4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B1CD2AD72FC516880086EAF4 /* Lumio for Content Creator */;
+			target = B1CD2AD72FC516880086EAF4 /* Challenge3 */;
 			targetProxy = B1CD2AE62FC516890086EAF4 /* PBXContainerItemProxy */;
 		};
 		B1CD2AF12FC516890086EAF4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B1CD2AD72FC516880086EAF4 /* Lumio for Content Creator */;
+			target = B1CD2AD72FC516880086EAF4 /* Challenge3 */;
 			targetProxy = B1CD2AF02FC516890086EAF4 /* PBXContainerItemProxy */;
 		};
 		B1CD2B0F2FC516B30086EAF4 /* PBXTargetDependency */ = {
@@ -767,7 +767,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B1CD2AF92FC516890086EAF4 /* Build configuration list for PBXNativeTarget "Lumio for Content Creator" */ = {
+		B1CD2AF92FC516890086EAF4 /* Build configuration list for PBXNativeTarget "Challenge3" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B1CD2AFA2FC516890086EAF4 /* Debug */,
