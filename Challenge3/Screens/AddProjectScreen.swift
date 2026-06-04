@@ -15,7 +15,7 @@ public struct AddProjectScreen: View {
 
     // MARK: - Form State
     @State private var title: String
-    @State private var topic: String = ""
+    @State private var outline: String = ""
     @State private var script: String = ""
     @State private var caption: String = ""
 
@@ -55,6 +55,12 @@ public struct AddProjectScreen: View {
     @State private var isSaving: Bool = false
     
     @State private var selectedSong: SongSelection? = nil
+    
+    // MARK: - Error state for title, outline, and caption
+    
+    @State private var titleHasError: Bool = false
+    @State private var outlineHasError: Bool = false
+    @State private var captionHasError: Bool = false
 
     // MARK: - Body
 
@@ -65,7 +71,7 @@ public struct AddProjectScreen: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     titleSection
-                    topicSection
+                    outlineSection
                     referencesSection
                     scriptSection
                     footageSection
@@ -143,17 +149,23 @@ public struct AddProjectScreen: View {
             label: "Project Title",
             placeholder: "Give your project a name...",
             text: $title,
-            editorMinHeight: 48
+            editorMinHeight: 48,
+            hasError: titleHasError,
+            errorMessage: "Title can't be empty"
         )
+        .onChange(of: title) { titleHasError = false }
     }
 
-    // MARK: - Topic Section
-    private var topicSection: some View {
+    // MARK: - Outline Section
+    private var outlineSection: some View {
         ProjectTextFieldView(
-            label: "Topic",
-            placeholder: "Enter your project topic...",
-            text: $topic
+            label: "Outline",
+            placeholder: "E.g.: This content talks about my daily life, with the main focus being my student life at ADA.",
+            text: $outline,
+            hasError: outlineHasError,
+            errorMessage: "Outline can't be empty"
         )
+        .onChange(of: outline) { outlineHasError = false }
     }
 
     // MARK: - Script Section
@@ -172,8 +184,13 @@ public struct AddProjectScreen: View {
             label: "Caption",
             placeholder: "Write your caption here...",
             text: $caption,
-            editorMinHeight: 90
+            editorMinHeight: 90,
+            hasError: captionHasError,
+            errorMessage: "Caption has exceeded the 2200 character limit"
         )
+        .onChange(of: caption) {
+            captionHasError = caption.count > 2200
+        }
     }
 
     // MARK: - References Section
@@ -239,12 +256,20 @@ public struct AddProjectScreen: View {
     private func saveProject() {
         // Validate required fields
         guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+            titleHasError = true
             validationMessage = "Please enter a project title."
             showValidationAlert = true
             return
         }
-        guard !topic.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please enter a topic."
+        guard !outline.trimmingCharacters(in: .whitespaces).isEmpty else {
+            outlineHasError = true
+            validationMessage = "Please enter a outline."
+            showValidationAlert = true
+            return
+        }
+        guard caption.count <= 2200 else {
+            captionHasError = true
+            validationMessage = "Caption exceeds the 2200 character limit."
             showValidationAlert = true
             return
         }
@@ -263,7 +288,7 @@ public struct AddProjectScreen: View {
         // Create the SwiftData object
         let project = CreatorProject(
             title: title.trimmingCharacters(in: .whitespaces),
-            topic: topic.trimmingCharacters(in: .whitespaces),
+            outline: outline.trimmingCharacters(in: .whitespaces),
             createdAt: .now
         )
         project.postDate = postDate

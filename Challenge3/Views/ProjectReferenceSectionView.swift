@@ -9,8 +9,13 @@ struct ProjectReferenceSectionView: View {
     let onDelete: (Int) -> Void
     let onTap: (ReferenceItem) -> Void
 
+    private var strokeColor: Color {
+        references.isEmpty ? Color.gray.opacity(0.3) : Color.brandBlue
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+
             // MARK: Header
             HStack {
                 Text("References")
@@ -29,64 +34,76 @@ struct ProjectReferenceSectionView: View {
                 .buttonStyle(.plain)
             }
 
-            // MARK: Empty State
-            if references.isEmpty {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.cardSurface)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(
-                                    Color.brandBlue.opacity(0.4),
-                                    style: StrokeStyle(lineWidth: 1.5, dash: [6])
-                                )
-                        )
-                    VStack(spacing: 6) {
-                        Image(systemName: "photo.badge.plus")
-                            .font(.system(size: 26))
-                            .foregroundColor(Color.accentColor.opacity(0.5))
-                        Text("Tap + to add references")
-                            .font(.system(size: 13))
-                            .foregroundColor(.gray)
-                    }
-                }
-                .frame(height: 100)
-                .onTapGesture { onAdd() }
+            // MARK: Container
+            VStack {
+                if references.isEmpty {
 
-            // MARK: Reference Cards
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(references.indices, id: \.self) { i in
-                            ReferenceCardView(
-                                reference: references[i],
-                                onDelete: { onDelete(i) },
-                                onTap: { onTap(references[i]) }
-                            )
+                    // Empty state — single dashed box just like the old footage add slot
+                    Button { onAdd() } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.gray.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(
+                                            Color.gray.opacity(0.3),
+                                            style: StrokeStyle(lineWidth: 1.5, dash: [5])
+                                        )
+                                )
+                            Image(systemName: "plus")
+                                .font(.system(size: 22))
+                                .foregroundColor(Color.gray.opacity(0.4))
                         }
-                        // Add more button
-                        Button { onAdd() } label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.cardSurface)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(
-                                                Color.brandBlue.opacity(0.4),
-                                                style: StrokeStyle(lineWidth: 1.5, dash: [6])
-                                            )
-                                    )
-                                Image(systemName: "plus")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(Color.brandBlue.opacity(0.5))
-                            }
-                            .frame(width: 100, height: 100)
-                        }
-                        .buttonStyle(.plain)
+                        .frame(width: 90, height: 90)
                     }
-                    .padding(.vertical, 4)
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                } else {
+
+                    // Reference Cards
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(references.indices, id: \.self) { i in
+                                ReferenceCardView(
+                                    reference: references[i],
+                                    onDelete: { onDelete(i) },
+                                    onTap: { onTap(references[i]) }
+                                )
+                            }
+
+                            // Add more button
+                            Button { onAdd() } label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.cardSurface)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(
+                                                    Color.brandBlue.opacity(0.4),
+                                                    style: StrokeStyle(lineWidth: 1.5, dash: [6])
+                                                )
+                                        )
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 22))
+                                        .foregroundColor(Color.brandBlue.opacity(0.5))
+                                }
+                                .frame(width: 100, height: 100)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
             }
+            .padding(12)
+            .background(Color.cardSurface)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(strokeColor, lineWidth: 1.5)
+            )
+            .animation(.easeInOut(duration: 0.2), value: references.isEmpty)
         }
     }
 }
@@ -188,7 +205,6 @@ struct ReferencePreviewView: View {
                     URLPreviewView(url: url)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
-//                        .scaledToFit()
 
                 } else if isTextOnly {
                     VStack(alignment: .leading, spacing: 10) {

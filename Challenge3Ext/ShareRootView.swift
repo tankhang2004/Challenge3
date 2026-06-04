@@ -54,7 +54,7 @@ struct ShareRootView: View {
                                         Text(project.title.isEmpty ? "Untitled Project" : project.title)
                                             .font(.body)
                                             .fontWeight(.medium)
-                                        Text(project.topic)
+                                        Text(project.outline)
                                             .font(.caption)
                                             .foregroundColor(.gray)
                                             .lineLimit(1)

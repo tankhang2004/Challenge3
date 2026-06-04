@@ -20,7 +20,7 @@ struct DetailProjectScreen: View {
     // MARK: - Local edit state (mirrors the project fields)
 
     @State private var title: String
-    @State private var topic: String
+    @State private var outline: String
     @State private var script: String
     @State private var caption: String
 
@@ -54,13 +54,21 @@ struct DetailProjectScreen: View {
     @State private var showDeleteConfirm: Bool = false
 
     @State private var selectedSong: SongSelection? = nil
+    
+    
+    // MARK: - Error state for title, outline, and caption
+    
+    @State private var titleHasError: Bool = false
+    @State private var outlineHasError: Bool = false
+    @State private var captionHasError: Bool = false
+    
     // MARK: - Init — seed local state from the project
 
     init(project: CreatorProject) {
         self.project = project
 
         _title   = State(initialValue: project.title)
-        _topic   = State(initialValue: project.topic)
+        _outline   = State(initialValue: project.outline)
         _script  = State(initialValue: project.scripts.first?.content ?? "")
         _caption = State(initialValue: project.captions.first?.content ?? "")
         // Seed music
@@ -90,7 +98,7 @@ struct DetailProjectScreen: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     titleSection
-                    topicSection
+                    outlineSection
                     referencesSection
                     scriptSection
                     footageSection
@@ -188,17 +196,23 @@ struct DetailProjectScreen: View {
             label: "Project Title",
             placeholder: "Give your project a name...",
             text: $title,
-            editorMinHeight: 48
+            editorMinHeight: 48,
+            hasError: titleHasError,
+            errorMessage: "Project title can't be empty"
         )
+        .onChange(of: title) { titleHasError = false }
     }
 
-    // MARK: - Topic Section
-    private var topicSection: some View {
+    // MARK: - Outline Section
+    private var outlineSection: some View {
         ProjectTextFieldView(
-            label: "Topic",
-            placeholder: "Enter your project topic...",
-            text: $topic
+            label: "Outline",
+            placeholder: "E.g.: This content talks about my daily life, with the main focus being my student life at ADA, showcasing my learning journey and interaction with fellow learners.",
+            text: $outline,
+            hasError: outlineHasError,
+            errorMessage: "Outline can't be empty"
         )
+        .onChange(of: outline) { outlineHasError = false }
     }
 
     // MARK: - Script Section
@@ -217,8 +231,13 @@ struct DetailProjectScreen: View {
             label: "Caption",
             placeholder: "Write your caption here...",
             text: $caption,
-            editorMinHeight: 90
+            editorMinHeight: 90,
+            hasError: captionHasError,
+            errorMessage: "Caption exceeds 2200 characters"
         )
+        .onChange(of: caption) {
+            captionHasError = caption.count > 2200
+        }
     }
 
     // MARK: - References Section
@@ -317,12 +336,20 @@ struct DetailProjectScreen: View {
     // MARK: - Save Logic
     private func saveChanges() {
         guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+            titleHasError = true
             validationMessage = "Please enter a project title."
             showValidationAlert = true
             return
         }
-        guard !topic.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please enter a topic."
+        guard !outline.trimmingCharacters(in: .whitespaces).isEmpty else {
+            outlineHasError = true
+            validationMessage = "Please enter a outline."
+            showValidationAlert = true
+            return
+        }
+        guard caption.count <= 2200 else {
+            captionHasError = true
+            validationMessage = "Caption exceeds the 2200 character limit."
             showValidationAlert = true
             return
         }
@@ -331,7 +358,7 @@ struct DetailProjectScreen: View {
 
         // Update top-level fields
         project.title = title.trimmingCharacters(in: .whitespaces)
-        project.topic = topic.trimmingCharacters(in: .whitespaces)
+        project.outline = outline.trimmingCharacters(in: .whitespaces)
 
         // Update postDate
         project.postDate = selectedDate.map { day in
@@ -431,7 +458,7 @@ struct DetailProjectScreen: View {
         for: CreatorProject.self, ReferenceItem.self,
         configurations: config
     )
-    let sample = CreatorProject(title: "Vlog A Day in My Life", topic: "A Day at ADA", createdAt: .now)
+    let sample = CreatorProject(title: "Vlog A Day in My Life", outline: "A Day at ADA", createdAt: .now)
     container.mainContext.insert(sample)
 
     return NavigationStack {
