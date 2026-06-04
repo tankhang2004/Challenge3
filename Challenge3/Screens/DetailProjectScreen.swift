@@ -1,626 +1,416 @@
+
+//  DetailProjectScreen.swift
+//  Challenge3
+
 import SwiftUI
-import LinkPresentation
-
-struct URLPreviewView: UIViewRepresentable {
-
-    let url: URL
-
-    func makeUIView(context: Context) -> LPLinkView {
-        let view = LPLinkView()
-        view.contentMode = .scaleAspectFit
-
-        let provider = LPMetadataProvider()
-
-        provider.startFetchingMetadata(for: url) { metadata, error in
-
-            if let metadata = metadata {
-                DispatchQueue.main.async {
-                    view.metadata = metadata
-                    // 🔥 important: prevent layout explosion
-//                      view.sizeToFit()
-                    // 🔥 important: resets internal layout
-                    view.invalidateIntrinsicContentSize()
-                    view.setNeedsLayout()
-                    view.layoutIfNeeded()
-                }
-            }
-        }
-
-        return view
-    }
-
-    func updateUIView(_ uiView: LPLinkView, context: Context) {}
-}
+import SwiftData
+import PhotosUI
 
 struct DetailProjectScreen: View {
-    @State private var sharedContents: [SharedContent] = []
-    @State var topic = "A Day in My life as Apple Developer Academy Cohort"
-    @State var script = "Hook: Bali punya hidden gems yang bahkan locals aja sering skip...\nMain: Nomor 10, Warung Bu Oka di Ubud..."
-    @State var caption = "Hidden street food Bali yang wajib kamu coba! 🍜 Drop lokasi favorit kamu di komen 👇 #BaliFood #StreetFood #HiddenGem"
-    @State var selectedDay: Int? = 1
-    @State var isAM = true
-    @State var musicExpanded = false
 
-    let aprilGrid: [Int?] = [
-        nil, nil, 1, 2, 3, 4, 5,
-        6, 7, 8, 9, 10, 11, 12,
-        13, 14, 15, 16, 17, 18, 19,
-        20, 21, 22, 23, 24, 25, 26,
-        27, 28, 29, 30, nil, nil, nil
-    ]
+    // MARK: - Environment
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    // MARK: - SwiftData object
+
+    @Bindable var project: CreatorProject
+
+    // MARK: - Local edit state (mirrors the project fields)
+
+    @State private var title: String
+    @State private var topic: String
+    @State private var script: String
+    @State private var caption: String
+
+    // MARK: - When to Post State
+
+    @State private var displayedMonth: Date
+    @State private var selectedDate: Date?
+    @State private var postHour: Int
+    @State private var postMinute: Int
+    @State private var isAM: Bool
+    @State private var showTimePicker: Bool = false
+
+    // MARK: - References State
+
+    @State private var showAddReferenceSheet: Bool = false
+    @State private var previewReference: ReferencePreviewPayload?
+
+    // MARK: - Footage State
+
+    @State private var footagePickerItems: [PhotosPickerItem] = []
+    @State private var footageImages: Array<UIImage> = []
+    @State private var footageVideoURLs: [URL] = []         // ← new
+
+
+    // MARK: - UI State
+
+    @State private var musicExpanded: Bool = false
+    @State private var showValidationAlert: Bool = false
+    @State private var validationMessage: String = ""
+    @State private var isSaving: Bool = false
+    @State private var showDeleteConfirm: Bool = false
+
+    // MARK: - Init — seed local state from the project
+
+    init(project: CreatorProject) {
+        self.project = project
+
+        _title   = State(initialValue: project.title)
+        _topic   = State(initialValue: project.topic)
+        _script  = State(initialValue: project.scripts.first?.content ?? "")
+        _caption = State(initialValue: project.captions.first?.content ?? "")
+
+        let postDate = project.postDate ?? project.createdAt
+        _displayedMonth = State(initialValue: Calendar.current.startOfMonth(for: postDate))
+        _selectedDate   = State(initialValue: project.postDate)
+
+        // Decompose postDate into hour / minute / AM-PM
+        let cal        = Calendar.current
+        let rawHour    = project.postDate.map { cal.component(.hour, from: $0) } ?? 12
+        let rawMinute  = project.postDate.map { cal.component(.minute, from: $0) } ?? 0
+        _isAM          = State(initialValue: rawHour < 12)
+        _postHour      = State(initialValue: rawHour % 12 == 0 ? 12 : rawHour % 12)
+        _postMinute    = State(initialValue: rawMinute)
+    }
+
+    // MARK: - Body
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color(hex: "F6F9FE").ignoresSafeArea()
+        ZStack {
+            Color.pageBackground.ignoresSafeArea()
 
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 24) {
-//                        importedSection
-                        topicSection
-                        referencesSection
-                        scriptSection
-                        footageSection
-                        captionSection
-                        musicSection
-                        whenToPostSection
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    .padding(.bottom, 40)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    titleSection
+                    topicSection
+                    referencesSection
+                    scriptSection
+                    footageSection
+                    captionSection
+                    musicSection
+                    whenToPostSection
+                    deleteSection
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 40)
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar { toolbarContent }
+        .alert("Missing Info", isPresented: $showValidationAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(validationMessage)
+        }
+        .confirmationDialog(
+            "Delete \"\(project.title)\"?",
+            isPresented: $showDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) { deleteProject() }
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showAddReferenceSheet) {
+            addReferenceSheet
+        }
+        .sheet(item: $previewReference) { payload in
+            ReferencePreviewSheetView(payload: payload)
+        }
+        .onAppear {loadExistingFootage() }
+    }
+
+    private func loadExistingFootage() {
+        // Load images
+        footageImages = project.images.compactMap { item in
+            SharedContentManager.shared.loadImage(filename: item.filename)
+        }
+
+        // Load videos from documents directory
+        let docsURL = FileManager.default.urls(
+            for: .documentDirectory, in: .userDomainMask
+        )[0]
+        footageVideoURLs = project.videos.compactMap { item in
+            let url = docsURL.appendingPathComponent(item.filePath)
+            return FileManager.default.fileExists(atPath: url.path) ? url : nil
+        }
+    }
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                dismiss()
+            } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color.brandBlue)
+            }
+            .buttonStyle(.plain)
+        }
+
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                saveChanges()
+            } label: {
+                if isSaving {
+                    ProgressView()
+                        .tint(.blue)
+                        .scaleEffect(0.8)
+                } else {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.blue)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .onAppear {
-            sharedContents =
-                SharedContentManager.shared.load()
-        }
-    }
-
-    var topicSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Topic")
-                .font(.headline)
-
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-                    )
-
-                TextEditor(text: $topic)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .scrollContentBackground(.hidden)
-                    .padding(8)
-                    .frame(minHeight: 72)
-            }
-            .frame(minHeight: 88)
-        }
-    }
-
-    var referencesSection: some View {
-        ReferencesSection()
-    }
-//    var referencesSection: some View {
-//        VStack(alignment: .leading, spacing: 12) {
-//            HStack {
-//                Text("References")
-//                    .font(.system(size: 17, weight: .bold))
-//                Spacer()
-//                Button(action: {}) {
-//                    ZStack {
-//                        Circle()
-//                            .fill(Color(hex: "3FA9F7"))
-//                            .frame(width: 34, height: 34)
-//                        Image(systemName: "plus")
-//                            .font(.system(size: 15, weight: .bold))
-//                            .foregroundColor(.white)
-//                    }
-//                }
-//            }
-//
-//            ScrollView(.horizontal, showsIndicators: false) {
-//                HStack(spacing: 12) {
-//
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        ZStack(alignment: .top) {
-//                            Image("Reference1")
-//                                .resizable()
-//                                .scaledToFill()
-//                                .frame(width: 160, height: 130)
-//                                .clipped()
-//
-//                            Text("A Day in my Life as Student")
-//                                .font(.system(size: 11, weight: .semibold))
-//                                .foregroundColor(.white)
-//                                .multilineTextAlignment(.center)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 6)
-//                                .frame(width: 160, alignment: .center)
-//                                .background(Color.black.opacity(0.3))
-//                        }
-//                        .frame(width: 160, height: 130)
-//
-//                        HStack(spacing: 6) {
-//                            Image("Instagram")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 22, height: 22)
-//                                .cornerRadius(6)
-//                            VStack(alignment: .leading, spacing: 1) {
-//                                Text("@bibi")
-//                                    .font(.system(size: 11, weight: .semibold))
-//                                    .foregroundColor(.black)
-//                                Text("Instagram.com")
-//                                    .font(.system(size: 10))
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        .padding(.horizontal, 8)
-//                        .padding(.vertical, 8)
-//                    }
-//                    .frame(width: 160)
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-//
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        ZStack(alignment: .top) {
-//                            Image("Reference2")
-//                                .resizable()
-//                                .scaledToFill()
-//                                .frame(width: 160, height: 130)
-//                                .clipped()
-//
-//                            Text("A Day in my Life as International")
-//                                .font(.system(size: 11, weight: .semibold))
-//                                .foregroundColor(.white)
-//                                .multilineTextAlignment(.center)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 6)
-//                                .frame(width: 160, alignment: .center)
-//                                .background(Color.black.opacity(0.3))
-//                        }
-//                        .frame(width: 160, height: 130)
-//
-//                        HStack(spacing: 6) {
-//                            Image("Tiktok")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 22, height: 22)
-//                                .cornerRadius(6)
-//                            VStack(alignment: .leading, spacing: 1) {
-//                                Text("@asaylife")
-//                                    .font(.system(size: 11, weight: .semibold))
-//                                    .foregroundColor(.black)
-//                                Text("tiktok.com")
-//                                    .font(.system(size: 10))
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        .padding(.horizontal, 8)
-//                        .padding(.vertical, 8)
-//                    }
-//                    .frame(width: 160)
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-//
-//                    VStack(alignment: .leading, spacing: 0) {
-//                        ZStack(alignment: .top) {
-//                            Image("Reference3")
-//                                .resizable()
-//                                .scaledToFill()
-//                                .frame(width: 160, height: 130)
-//                                .clipped()
-//
-//                            Text("a day my life")
-//                                .font(.system(size: 11, weight: .semibold))
-//                                .foregroundColor(.white)
-//                                .multilineTextAlignment(.center)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 6)
-//                                .frame(width: 160, alignment: .center)
-//                                .background(Color.black.opacity(0.3))
-//                        }
-//                        .frame(width: 160, height: 130)
-//
-//                        HStack(spacing: 6) {
-//                            Image("Instagram")
-//                                .resizable()
-//                                .scaledToFit()
-//                                .frame(width: 22, height: 22)
-//                                .cornerRadius(6)
-//                            VStack(alignment: .leading, spacing: 1) {
-//                                Text("@linta")
-//                                    .font(.system(size: 11, weight: .semibold))
-//                                    .foregroundColor(.black)
-//                                Text("Instagram.com")
-//                                    .font(.system(size: 10))
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                        .padding(.horizontal, 8)
-//                        .padding(.vertical, 8)
-//                    }
-//                    .frame(width: 160)
-//                    .background(Color.white)
-//                    .cornerRadius(12)
-//                    .shadow(color: Color.black.opacity(0.12), radius: 6, x: 0, y: 3)
-//                }
-//                .padding(.vertical, 4)
-//            }
-//        }
-//    }
-
-    var scriptSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Script")
-                .font(.body.bold())
-
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-                    )
-
-                TextEditor(text: $script)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .scrollContentBackground(.hidden)
-                    .padding(8)
-                    .frame(minHeight: 80)
-            }
-            .frame(minHeight: 96)
+            .buttonStyle(.plain)
+            .disabled(isSaving)
         }
     }
 
-    var footageSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Footage")
-                .font(.headline)
-
-            VStack(spacing: 12) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.28))
-                        Circle()
-                            .fill(Color.white.opacity(0.88))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: "play.fill")
-                            .font(.caption)
-                            .foregroundColor(Color(hex: "E67740"))
-                            .offset(x: 2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 90)
-                    .cornerRadius(8)
-
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.28))
-                        Text("A Day\nIn My Life")
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                        Circle()
-                            .fill(Color.white.opacity(0.88))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: "play.fill")
-                            .font(.caption)
-                            .foregroundColor(Color(hex: "E67740"))
-                            .offset(x: 2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 90)
-                    .cornerRadius(8)
-
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.28))
-                        Circle()
-                            .fill(Color.white.opacity(0.88))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: "play.fill")
-                            .font(.caption2)
-                            .foregroundColor(Color(hex: "E67740"))
-                            .offset(x: 2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 90)
-                    .cornerRadius(8)
-                }
-
-                Button(action: {}) {
-                    Text("+ Add More")
-                        .font(.subheadline.bold())
-                        .foregroundColor(Color(hex: "E67740"))
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .padding(12)
-            .background(Color.white)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-            )
-        }
-    }
-
-    var captionSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Caption")
-                .font(.headline)
-
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-                    )
-
-                TextEditor(text: $caption)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .scrollContentBackground(.hidden)
-                    .padding(8)
-                    .frame(minHeight: 90)
-            }
-            .frame(minHeight: 106)
-        }
-    }
-
-    var musicSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Music Selection")
-                .font(.body)
-
-            HStack(spacing: 12) {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(hex: "A0785A").opacity(0.6))
-                    .frame(width: 54, height: 54)
-                    .overlay(
-                        Image("MusicSelection")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50, height: 50)
-                            .cornerRadius(5)
-                    )
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Aesthetic Lofi Chill")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.black)
-                    Text("By Lio ADA")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                }
-
-                Spacer()
-
-                Button(action: { withAnimation { musicExpanded.toggle() } }) {
-                    Image(systemName: "chevron.down")
-                        .font(.subheadline)
-                        .foregroundColor(.black)
-                        .rotationEffect(.degrees(musicExpanded ? 180 : 0))
-                }
-            }
-            .padding(12)
-            .background(Color(hex: "FFE7DC"))
-            .cornerRadius(14)
-        }
-    }
-
-    var whenToPostSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("When to Post")
-                .font(.headline)
-
-            VStack(spacing: 10) {
-                HStack {
-                    Button(action: {}) {
-                        HStack(spacing: 4) {
-                            Text("April 2025")
-                                .font(.subheadline)
-                                .foregroundColor(.black)
-                            Image(systemName: "chevron.right")
-                                .font(.caption2.bold())
-                                .foregroundColor(.black)
-                        }
-                    }
-
-                    Spacer()
-
-                    HStack(spacing: 16) {
-                        Button(action: {}) {
-                            Image(systemName: "chevron.left")
-                                .font(.subheadline)
-                                .foregroundColor(Color(hex: "3FA9F7"))
-                        }
-                        Button(action: {}) {
-                            Image(systemName: "chevron.right")
-                                .font(.subheadline)
-                                .foregroundColor(Color(hex: "3FA9F7"))
-                        }
-                    }
-                }
-
-                HStack(spacing: 0) {
-                    ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
-                        Text(day)
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-
-                LazyVGrid(
-                    columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7),
-                    spacing: 2
-                ) {
-                    ForEach(0..<aprilGrid.count, id: \.self) { i in
-                        if let day = aprilGrid[i] {
-                            Button(action: { selectedDay = day }) {
-                                ZStack {
-                                    if selectedDay == day {
-                                        Circle()
-                                            .fill(Color(hex: "3FA9F7"))
-                                            .frame(width: 34, height: 34)
-                                    }
-                                    Text("\(day)")
-                                        .font(.subheadline)
-                                        .foregroundColor(
-                                            selectedDay == day ? .white :
-                                            day == 21 ? Color(hex: "3FA9F7") : .black
-                                        )
-                                }
-                                .frame(height: 36)
-                            }
-                        } else {
-                            Color.clear.frame(height: 36)
-                        }
-                    }
-                }
-            }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(14)
-
-            HStack {
-                Text("Time")
-                    .font(.subheadline.bold())
-                    .foregroundColor(.black)
-
-                Spacer()
-
-                HStack(spacing: 10) {
-                    Text("3:00")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 9)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
-                        )
-
-                    HStack(spacing: 0) {
-                        Button(action: { isAM = true }) {
-                            Text("AM")
-                                .font(.footnote.bold())
-                                .foregroundColor(isAM ? .white : .black)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 9)
-                                .background(isAM ? Color(hex: "3FA9F7") : Color.clear)
-                                .cornerRadius(isAM ? 10 : 0)
-                        }
-                        Button(action: { isAM = false }) {
-                            Text("PM")
-                                .font(.footnote.bold())
-                                .foregroundColor(!isAM ? .white : .black)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 9)
-                                .background(!isAM ? Color(hex: "3FA9F7") : Color.clear)
-                                .cornerRadius(!isAM ? 10 : 0)
-                        }
-                    }
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
-                    )
-                    .cornerRadius(10)
-                }
-            }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(14)
-        }
-    }
-    var importedSection: some View {
-
-        VStack(alignment: .leading, spacing: 12) {
-
-            Text("Imported")
-                .font(.title2.bold())
-
-            ForEach(sharedContents, id: \.id) { item in
-
-                VStack(alignment: .leading) {
-
-                    switch item.type {
-
-                    case .text:
-
-                        Text(item.text ?? "")
-
-                    case .url:
-
-                        VStack(alignment: .leading, spacing: 10) {
-
-                            if let urlString = item.url,
-                               let url = URL(string: urlString) {
-
-                                URLPreviewView(url: url)
-                                    .frame(height: 160)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                                Link(destination: url) {
-                                    Text(urlString)
-                                        .font(.caption)
-                                        .foregroundColor(.blue)
-                                        .lineLimit(2)
-                                        .truncationMode(.middle)
-                                }
-                            }
-                        }
-
-                    case .image:
-
-                        if let filename = item.imageFilename,
-                           let image =
-                            SharedContentManager.shared
-                                .loadImage(filename: filename)
-                        {
-
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 200)
-                        }
-                    }
-                }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(12)
-            }
-        }
-    }
-}
-
-extension Color {
-    init(hex: String) {
-        let hexString = hex.trimmingCharacters(in: .alphanumerics.inverted)
-        var rgb: UInt64 = 0
-        Scanner(string: hexString).scanHexInt64(&rgb)
-        self.init(
-            red: Double((rgb >> 16) & 0xFF) / 255,
-            green: Double((rgb >> 8) & 0xFF) / 255,
-            blue: Double(rgb & 0xFF) / 255
+    // MARK: - Title Section
+    private var titleSection: some View {
+        ProjectTextFieldView(
+            label: "Project Title",
+            placeholder: "Give your project a name...",
+            text: $title,
+            editorMinHeight: 48
         )
     }
+
+    // MARK: - Topic Section
+    private var topicSection: some View {
+        ProjectTextFieldView(
+            label: "Topic",
+            placeholder: "Enter your project topic...",
+            text: $topic
+        )
+    }
+
+    // MARK: - Script Section
+    private var scriptSection: some View {
+        ProjectTextFieldView(
+            label: "Script",
+            placeholder: "Write your script here...",
+            text: $script,
+            editorMinHeight: 80
+        )
+    }
+
+    // MARK: - Caption Section
+    private var captionSection: some View {
+        ProjectTextFieldView(
+            label: "Caption",
+            placeholder: "Write your caption here...",
+            text: $caption,
+            editorMinHeight: 90
+        )
+    }
+
+    // MARK: - References Section
+
+    private var referencesSection: some View {
+        ProjectReferenceSectionView(
+            references: project.references,
+            onAdd: { showAddReferenceSheet = true },
+            onDelete: { index in
+                withAnimation {
+                    var refs = project.references
+                    refs.remove(at: index)
+                    project.references = refs
+                }
+            },
+            onTap: { ref in
+                previewReference = ReferencePreviewPayload(reference: ref)
+            }
+        )
+    }
+    private var addReferenceSheet: some View {
+        AddReferenceSheetView { newRef in
+            project.references.append(newRef)
+            showAddReferenceSheet = false
+        } onCancel: {
+            showAddReferenceSheet = false
+        }
+    }
+
+    // MARK: - Footage Section
+
+    private var footageSection: some View {
+        FootageSectionView(
+            footageImages: $footageImages,
+            footagePickerItems: $footagePickerItems,
+            footageVideoURLs: $footageVideoURLs
+        )
+    }
+
+    // MARK: - Music Section
+
+    private var musicSection: some View {
+        ProjectMusicSectionView(isExpanded: $musicExpanded)
+    }
+
+    // MARK: - When to Post Section
+
+    private var whenToPostSection: some View {
+        ProjectWhenToPostSectionView(
+            displayedMonth: $displayedMonth,
+            selectedDate: $selectedDate,
+            postHour: $postHour,
+            postMinute: $postMinute,
+            isAM: $isAM,
+            showTimePicker: $showTimePicker
+        )
+    }
+
+    // MARK: - Delete Section
+
+    private var deleteSection: some View {
+        Button {
+            showDeleteConfirm = true
+        } label: {
+            HStack {
+                Spacer()
+                Label("Delete Project", systemImage: "trash")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.brandOrange)
+                Spacer()
+            }
+            .padding(.vertical, 14)
+            .background(Color.white)
+            .cornerRadius(14)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Save Logic
+    private func saveChanges() {
+        guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+            validationMessage = "Please enter a project title."
+            showValidationAlert = true
+            return
+        }
+        guard !topic.trimmingCharacters(in: .whitespaces).isEmpty else {
+            validationMessage = "Please enter a topic."
+            showValidationAlert = true
+            return
+        }
+
+        isSaving = true
+
+        // Update top-level fields
+        project.title = title.trimmingCharacters(in: .whitespaces)
+        project.topic = topic.trimmingCharacters(in: .whitespaces)
+
+        // Update postDate
+        project.postDate = selectedDate.map { day in
+            var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
+            components.hour   = isAM ? postHour % 12 : (postHour % 12) + 12
+            components.minute = postMinute
+            return Calendar.current.date(from: components) ?? day
+        }
+
+        // Update or create script
+        let trimmedScript = script.trimmingCharacters(in: .whitespaces)
+        if let existing = project.scripts.first {
+            existing.content = trimmedScript
+        } else if !trimmedScript.isEmpty {
+            project.scripts.append(ScriptItem(content: trimmedScript))
+        }
+
+        // Update or create caption
+        let trimmedCaption = caption.trimmingCharacters(in: .whitespaces)
+        if let existing = project.captions.first {
+            existing.content = trimmedCaption
+        } else if !trimmedCaption.isEmpty {
+            project.captions.append(CaptionItem(content: trimmedCaption, platform: "tiktok"))
+        }
+
+        // Update images — delete old files, save current ones
+        for imageItem in project.images {
+            SharedContentManager.shared.deleteImage(filename: imageItem.filename)
+        }
+        project.images.removeAll()
+        for image in footageImages {
+            if let filename = SharedContentManager.shared.saveImage(image) {
+                project.images.append(ImageItem(filename: filename))
+            }
+        }
+
+        // Update videos — delete old files, save current ones
+        let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        for videoItem in project.videos {
+            let oldURL = docsURL.appendingPathComponent(videoItem.filePath)
+            try? FileManager.default.removeItem(at: oldURL)
+        }
+        project.videos.removeAll()
+        for videoURL in footageVideoURLs {
+            let filename = "\(UUID().uuidString).mov"
+            let destURL = docsURL.appendingPathComponent(filename)
+            if (try? FileManager.default.copyItem(at: videoURL, to: destURL)) != nil {
+                project.videos.append(VideoItem(filePath: filename))
+            }
+        }
+        var thumbnailFilename: String?
+        if let firstImage = footageImages.first {
+
+            thumbnailFilename =
+                SharedContentManager.shared.saveImage(firstImage)
+        }
+        else if let firstVideoURL = footageVideoURLs.first,
+                let thumbnail =
+                    VideoThumbnailGenerator.thumbnail(
+                        from: firstVideoURL
+                    )
+        {
+            thumbnailFilename =
+                SharedContentManager.shared.saveImage(thumbnail)
+        }
+        project.thumbnailFilename = thumbnailFilename
+        
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            isSaving = false
+            validationMessage = "Failed to save: \(error.localizedDescription)"
+            showValidationAlert = true
+        }
+    }
+
+    // MARK: - Delete Logic
+
+    private func deleteProject() {
+        modelContext.delete(project)
+        try? modelContext.save()
+        dismiss()
+    }
+
 }
 
+
+// MARK: - Preview
+
 #Preview {
-    DetailProjectScreen()
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(
+        for: CreatorProject.self, ReferenceItem.self,
+        configurations: config
+    )
+    let sample = CreatorProject(title: "Vlog A Day in My Life", topic: "A Day at ADA", createdAt: .now)
+    container.mainContext.insert(sample)
+
+    return NavigationStack {
+        DetailProjectScreen(project: sample)
+    }
+    .modelContainer(container)
 }

@@ -1,36 +1,73 @@
-import SwiftUI
+//  AddProjectScreen.swift
+//  Challenge3
 
-struct AddProjectScreen: View {
+import SwiftUI
+import SwiftData
+import PhotosUI
+
+public struct AddProjectScreen: View {
     
-    @State var topic = ""
-    @State var script = ""
-    @State var caption = ""
-    @State var selectedDay: Int? = nil
-    @State var isAM = true
-    @State var musicExpanded = false
-    @Environment(\.dismiss) var dismiss
-    
-    let aprilGrid: [Int?] = [
-        nil, nil, 1, 2, 3, 4, 5,
-        6, 7, 8, 9, 10, 11, 12,
-        13, 14, 15, 16, 17, 18, 19,
-        20, 21, 22, 23, 24, 25, 26,
-        27, 28, 29, 30, nil, nil, nil
-    ]
-    
-    var body: some View {
-        
+
+    // MARK: - Environment
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    // MARK: - Form State
+    @State private var title: String
+    @State private var topic: String = ""
+    @State private var script: String = ""
+    @State private var caption: String = ""
+
+    // MARK: - Init
+    public init(initialTitle: String = "") {
+        _title = State(initialValue: initialTitle)
+    }
+
+    // MARK: - When to Post State
+
+    @State private var displayedMonth: Date = Calendar.current.startOfMonth(for: .now)
+    @State private var selectedDate: Date? = nil
+    @State private var postHour: Int = 12
+    @State private var postMinute: Int = 0
+    @State private var isAM: Bool = true
+    @State private var showTimePicker: Bool = false
+
+    // MARK: - References State
+
+    @State private var referenceURL: String = ""
+    @State private var showAddReferenceSheet: Bool = false
+    @State private var pendingReferences: Array<ReferenceItem> = []
+    @State private var previewReference: ReferencePreviewPayload?
+
+    // MARK: - Footage State
+
+    @State private var footagePickerItems: [PhotosPickerItem] = []
+    @State private var footageImages: Array<UIImage> = []
+    @State private var footageVideoURLs: [URL] = []          // ← new
+
+    @State private var showFootagePicker: Bool = false
+
+    // MARK: - Validation / Save
+
+    @State private var showValidationAlert: Bool = false
+    @State private var validationMessage: String = ""
+    @State private var isSaving: Bool = false
+
+    // MARK: - Body
+
+    public var body: some View {
         ZStack {
-            Color(hex: "F6F9FE").ignoresSafeArea()
-            
+            Color.pageBackground.ignoresSafeArea()
+
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
+                    titleSection
                     topicSection
                     referencesSection
                     scriptSection
                     footageSection
                     captionSection
-                    musicSection
                     whenToPostSection
                 }
                 .padding(.horizontal, 20)
@@ -40,400 +77,319 @@ struct AddProjectScreen: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { dismiss()}) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                            .font(.callout)
-                        Text("Add Project")
-                            .font(.headline)
-                    }
-                    .foregroundColor(Color(hex: "3FA9F7"))
+        .toolbar { toolbarContent }
+        .alert("Missing Info", isPresented: $showValidationAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(validationMessage)
+        }
+        .sheet(isPresented: $showAddReferenceSheet) {
+            addReferenceSheet
+        }
+        .sheet(item: $previewReference) { payload in
+            ReferencePreviewSheetView(payload: payload)
+        }
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                dismiss()
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+//                    Text("Add Project")
+//                        .font(.system(size: 17, weight: .semibold))
                 }
+                .foregroundColor(Color.accentColor)
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { dismiss() }) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "3FA9F7"))
-                            .frame(width: 36, height: 36)
+        }
+
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                saveProject()
+            } label: {
+                ZStack {
+//                    Circle()
+//                        .fill(isSaving ? Color.gray : Color(hex: "3FA9F7"))
+//                        .frame(width: 36, height: 36)
+                    if isSaving {
+                        ProgressView()
+                            .tint(.blue)
+                            .scaleEffect(0.7)
+                    } else {
                         Image(systemName: "checkmark")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.accentColor)
                     }
                 }
             }
+//            .buttonStyle(.plain)                    // ✅ kills liquid glass container entirely
+//            .buttonBorderShape(.circle)             // ✅ forces hit area to circle
+            .disabled(isSaving)
         }
     }
+
+    // MARK: - Title Section
+    private var titleSection: some View {
+        ProjectTextFieldView(
+            label: "Project Title",
+            placeholder: "Give your project a name...",
+            text: $title,
+            editorMinHeight: 48
+        )
+    }
+
+    // MARK: - Topic Section
+    private var topicSection: some View {
+        ProjectTextFieldView(
+            label: "Topic",
+            placeholder: "Enter your project topic...",
+            text: $topic
+        )
+    }
+
+    // MARK: - Script Section
+    private var scriptSection: some View {
+        ProjectTextFieldView(
+            label: "Script",
+            placeholder: "Write your script here...",
+            text: $script,
+            editorMinHeight: 80
+        )
+    }
+
+    // MARK: - Caption Section
+    private var captionSection: some View {
+        ProjectTextFieldView(
+            label: "Caption",
+            placeholder: "Write your caption here...",
+            text: $caption,
+            editorMinHeight: 90
+        )
+    }
+
+    // MARK: - References Section
+
+    private var referencesSection: some View {
+        ProjectReferenceSectionView(
+            references: pendingReferences,
+            onAdd: { showAddReferenceSheet = true },
+            onDelete: { index in
+                withAnimation {
+                    var refs = pendingReferences
+                    refs.remove(at: index)
+                    pendingReferences = refs
+                }
+            },
+            onTap: { ref in
+                previewReference = ReferencePreviewPayload(reference: ref)
+            }
+        )
+    }
+//
+//    // MARK: - Add Reference Sheet
+//
+    private var addReferenceSheet: some View {
+        AddReferenceSheetView { newRef in
+            pendingReferences.append(newRef)
+            showAddReferenceSheet = false
+        } onCancel: {
+            showAddReferenceSheet = false
+        }
+    }
+//
     
-    var topicSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Topic")
-                .font(.headline)
-            
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
+    // MARK: - Footage Section
+
+    private var footageSection: some View {
+        FootageSectionView(
+            footageImages: $footageImages,
+            footagePickerItems: $footagePickerItems,
+            footageVideoURLs: $footageVideoURLs             // ← new
+        )
+    }
+    
+    // MARK: - When to Post Section
+
+    private var whenToPostSection: some View {
+        ProjectWhenToPostSectionView(
+            displayedMonth: $displayedMonth,
+            selectedDate: $selectedDate,
+            postHour: $postHour,
+            postMinute: $postMinute,
+            isAM: $isAM,
+            showTimePicker: $showTimePicker
+        )
+    }
+
+    // MARK: - Save Logic
+
+    private func saveProject() {
+        // Validate required fields
+        guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+            validationMessage = "Please enter a project title."
+            showValidationAlert = true
+            return
+        }
+        guard !topic.trimmingCharacters(in: .whitespaces).isEmpty else {
+            validationMessage = "Please enter a topic."
+            showValidationAlert = true
+            return
+        }
+
+        isSaving = true
+
+        // Build postDate by combining selectedDate + hour/minute
+        let postDate: Date? = selectedDate.map { day in
+            var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
+            components.hour = isAM ? postHour % 12 : (postHour % 12) + 12
+            components.minute = postMinute
+            return Calendar.current.date(from: components) ?? day
+        }
+        
+        
+        // Create the SwiftData object
+        let project = CreatorProject(
+            title: title.trimmingCharacters(in: .whitespaces),
+            topic: topic.trimmingCharacters(in: .whitespaces),
+            createdAt: .now
+        )
+        project.postDate = postDate
+
+        // Attach script
+        if !script.trimmingCharacters(in: .whitespaces).isEmpty {
+            let scriptItem = ScriptItem(content: script)
+            project.scripts.append(scriptItem)
+        }
+
+        // Attach caption
+        if !caption.trimmingCharacters(in: .whitespaces).isEmpty {
+            let captionItem = CaptionItem(content: caption, platform: "tiktok")
+            project.captions.append(captionItem)
+        }
+
+        // Attach references
+        for ref in pendingReferences {
+            project.references.append(ref)
+        }
+        
+        // Attach images
+        for image in footageImages {
+            if let filename = SharedContentManager.shared.saveImage(image) {
+                let item = ImageItem(filename: filename)
+                project.images.append(item)
+            }
+        }
+
+        // Attach videos
+        for videoURL in footageVideoURLs {
+            let filename = "\(UUID().uuidString).mov"
+            let destURL = FileManager.default.urls(
+                for: .documentDirectory, in: .userDomainMask
+            )[0].appendingPathComponent(filename)
+
+            if (try? FileManager.default.copyItem(at: videoURL, to: destURL)) != nil {
+                let item = VideoItem(filePath: filename)
+                project.videos.append(item)
+            }
+        }
+        
+        var thumbnailFilename: String?
+        if let firstImage = footageImages.first {
+
+            thumbnailFilename =
+                SharedContentManager.shared.saveImage(firstImage)
+        }
+        else if let firstVideoURL = footageVideoURLs.first,
+                let thumbnail =
+                    VideoThumbnailGenerator.thumbnail(
+                        from: firstVideoURL
                     )
-                
-                if topic.isEmpty {
-                    Text("Enter your project topic...")
-                        .font(.subheadline)
-                        .foregroundColor(Color.gray.opacity(0.5))
-                        .padding(.horizontal, 14)
-                        .padding(.top, 14)
-                }
-                
-                TextEditor(text: $topic)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .scrollContentBackground(.hidden)
-                    .padding(8)
-                    .frame(minHeight: 72)
-            }
-            .frame(minHeight: 88)
+        {
+            thumbnailFilename =
+                SharedContentManager.shared.saveImage(thumbnail)
         }
-    }
-    
-    var referencesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("References")
-                    .font(.headline)
-                Spacer()
-                Button(action: {}) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "3FA9F7"))
-                            .frame(width: 34, height: 34)
-                        Image(systemName: "plus")
-                            .font(.subheadline.bold())
-                            .foregroundColor(.white)
-                    }
-                }
-            }
-            
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(hex: "3FA9F7").opacity(0.4), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
-                    )
-                
-                VStack(spacing: 6) {
-                    Image(systemName: "photo.badge.plus")
-                        .font(.title)
-                        .foregroundColor(Color(hex: "3FA9F7").opacity(0.5))
-                    Text("Tap + to add references")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                }
-            }
-            .frame(height: 100)
+        project.thumbnailFilename = thumbnailFilename
+
+        // Insert and save
+        modelContext.insert(project)
+
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            isSaving = false
+            validationMessage = "Failed to save: \(error.localizedDescription)"
+            showValidationAlert = true
         }
+        print("📍 APP GROUP URL:", FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.Lumio"
+        ) as Any)
     }
-    
-    var scriptSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Script")
-                .font(.headline)
-            
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-                    )
-                
-                if script.isEmpty {
-                    Text("Write your script here...")
-                        .font(.subheadline)
-                        .foregroundColor(Color.gray.opacity(0.5))
-                        .padding(.horizontal, 14)
-                        .padding(.top, 14)
-                }
-                
-                TextEditor(text: $script)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .scrollContentBackground(.hidden)
-                    .padding(8)
-                    .frame(minHeight: 80)
-            }
-            .frame(minHeight: 96)
-        }
-    }
-    
-    var footageSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Footage")
-                .font(.headline)
-            
-            VStack(spacing: 12) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [5]))
-                            )
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(Color.gray.opacity(0.4))
+
+}
+
+// MARK: - Add Reference Sheet
+
+struct AddReferenceSheetView: View {
+    @State private var refTitle: String = ""
+    @State private var refCreator: String = ""
+    @State private var refPlatform: String = "Instagram"
+    @State private var refURL: String = ""
+
+    let platforms = ["Instagram", "TikTok", "YouTube", "Twitter/X", "Other"]
+    let onAdd: (ReferenceItem) -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Reference Details") {
+                    TextField("Title", text: $refTitle)
+                    TextField("Creator / @handle", text: $refCreator)
+                    Picker("Platform", selection: $refPlatform) {
+                        ForEach(platforms, id: \.self) { Text($0) }
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 90)
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [5]))
-                            )
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(Color.gray.opacity(0.4))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 90)
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [5]))
-                            )
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(Color.gray.opacity(0.4))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 90)
-                }
-                
-                Button(action: {}) {
-                    Text("+ Add More")
-                        .font(.subheadline)
-                        .foregroundColor(Color(hex: "E67740"))
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .padding(12)
-            .background(Color.white)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-            )
-        }
-    }
-    
-    var captionSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Caption")
-                .font(.headline)
-            
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color(hex: "3FA9F7"), lineWidth: 1.5)
-                    )
-                
-                if caption.isEmpty {
-                    Text("Write your caption here...")
-                        .font(.subheadline)
-                        .foregroundColor(Color.gray.opacity(0.5))
-                        .padding(.horizontal, 14)
-                        .padding(.top, 14)
-                }
-                
-                TextEditor(text: $caption)
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                    .scrollContentBackground(.hidden)
-                    .padding(8)
-                    .frame(minHeight: 90)
-            }
-            .frame(minHeight: 106)
-        }
-    }
-    
-    var musicSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Music Selection")
-                .font(.subheadline)
-            
-            HStack(spacing: 12) {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.15))
-                    .frame(width: 54, height: 54)
-                    .overlay(
-                        Image(systemName: "music.note")
-                            .foregroundColor(.gray)
-                            .font(.headline)
-                    )
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("No music selected")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                    Text("Tap to choose music")
-                        .font(.footnote)
-                        .foregroundColor(Color.gray.opacity(0.7))
-                }
-                
-                Spacer()
-                
-                Button(action: { withAnimation { musicExpanded.toggle() } }) {
-                    Image(systemName: "chevron.down")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .rotationEffect(.degrees(musicExpanded ? 180 : 0))
+                    TextField("URL (optional)", text: $refURL)
+                        .keyboardType(.URL)
+                        .autocapitalization(.none)
                 }
             }
-            .padding(12)
-            .background(Color(hex: "FFE7DC"))
-            .cornerRadius(14)
-        }
-    }
-    
-    var whenToPostSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("When to Post")
-                .font(.headline)
-            
-            VStack(spacing: 10) {
-                HStack {
-                    Button(action: {}) {
-                        HStack(spacing: 4) {
-                            Text("April 2025")
-                                .font(.subheadline)
-                                .foregroundColor(.black)
-                            Image(systemName: "chevron.right")
-                                .font(.caption.bold())
-                                .foregroundColor(.black)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 16) {
-                        Button(action: {}) {
-                            Image(systemName: "chevron.left")
-                                .font(.subheadline.bold())
-                                .foregroundColor(Color(hex: "3FA9F7"))
-                        }
-                        Button(action: {}) {
-                            Image(systemName: "chevron.right")
-                                .font(.subheadline.bold())
-                                .foregroundColor(Color(hex: "3FA9F7"))
-                        }
-                    }
+            .navigationTitle("Add Reference")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
                 }
-                
-                HStack(spacing: 0) {
-                    ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
-                        Text(day)
-                            .font(.caption2.bold())
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                
-                LazyVGrid(
-                    columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7),
-                    spacing: 2
-                ) {
-                    ForEach(0..<aprilGrid.count, id: \.self) { i in
-                        if let day = aprilGrid[i] {
-                            Button(action: { selectedDay = day }) {
-                                ZStack {
-                                    if selectedDay == day {
-                                        Circle()
-                                            .fill(Color(hex: "3FA9F7"))
-                                            .frame(width: 34, height: 34)
-                                    }
-                                    Text("\(day)")
-                                        .font(.subheadline)
-                                        .foregroundColor(selectedDay == day ? .white : .black)
-                                }
-                                .frame(height: 36)
-                            }
-                        } else {
-                            Color.clear.frame(height: 36)
-                        }
-                    }
-                }
-            }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(14)
-            
-            HStack {
-                Text("Time")
-                    .font(.subheadline.bold())
-                    .foregroundColor(.black)
-                
-                Spacer()
-                
-                HStack(spacing: 10) {
-                    Text("12:00")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 9)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white)
-                                .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") {
+                        let ref = ReferenceItem(
+                            title: refTitle,
+                            creator: refCreator,
+                            platform: refPlatform,
+                            url: refURL
                         )
-                    
-                    HStack(spacing: 0) {
-                        Button(action: { isAM = true }) {
-                            Text("AM")
-                                .font(.subheadline.bold())
-                                .foregroundColor(isAM ? .white : .black)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 9)
-                                .background(isAM ? Color(hex: "3FA9F7") : Color.clear)
-                                .cornerRadius(isAM ? 10 : 0)
-                        }
-                        Button(action: { isAM = false }) {
-                            Text("PM")
-                                .font(.subheadline.bold())
-                                .foregroundColor(!isAM ? .white : .black)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 9)
-                                .background(!isAM ? Color(hex: "3FA9F7") : Color.clear)
-                                .cornerRadius(!isAM ? 10 : 0)
-                        }
+                        onAdd(ref)
                     }
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
-                    )
-                    .cornerRadius(10)
+                    .disabled(refTitle.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
-            .padding(16)
-            .background(Color.white)
-            .cornerRadius(14)
         }
     }
 }
 
+
+
+// MARK: - Preview
+
 #Preview {
-    AddProjectScreen()
+    NavigationStack {
+        AddProjectScreen()
+    }
+    .modelContainer(for: [CreatorProject.self, ReferenceItem.self], inMemory: true)
 }

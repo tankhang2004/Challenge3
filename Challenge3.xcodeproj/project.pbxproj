@@ -59,10 +59,25 @@
 		B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Models/CaptionItem.swift,
+				Models/CreatorProject.swift,
+				Models/ImageItem.swift,
+				Models/ReferenceItem.swift,
+				Models/ScriptItem.swift,
+				Models/VideoItem.swift,
+				Models/VideoThumbnailGenerator.swift,
 				Screens/ShareAppScreen.swift,
-				Screens/SharedContent.swift,
-				Screens/SharedStorageManager.swift,
 				Screens/ShareGalleryScreen.swift,
+				SharedContent.swift,
+				SharedStorageManager.swift,
+				Views/Extensions.swift,
+				Views/ProjectFootageSectionView.swift,
+				Views/ProjectMusicSectionView.swift,
+				Views/ProjectReferenceSectionView.swift,
+				Views/ProjectTextFieldView.swift,
+				Views/ProjectWhenToPostSectionView.swift,
+				Views/URLPreviewView.swift,
+				Views/VideoPlayerView.swift,
 			);
 			target = B1CD2B052FC516B20086EAF4 /* Challenge3Ext */;
 		};
@@ -386,7 +401,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -450,7 +465,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -511,7 +526,7 @@
 				CODE_SIGN_ENTITLEMENTS = Challenge3/Challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9CFU6WK35D;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -545,7 +560,7 @@
 				CODE_SIGN_ENTITLEMENTS = Challenge3/Challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9CFU6WK35D;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -662,11 +677,12 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9CFU6WK35D;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Challenge3Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Challenge3Ext;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -693,11 +709,12 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9CFU6WK35D;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Challenge3Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Challenge3Ext;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
