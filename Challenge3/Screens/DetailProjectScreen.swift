@@ -53,6 +53,7 @@ struct DetailProjectScreen: View {
     @State private var isSaving: Bool = false
     @State private var showDeleteConfirm: Bool = false
 
+    @State private var selectedSong: SongSelection? = nil
     // MARK: - Init — seed local state from the project
 
     init(project: CreatorProject) {
@@ -62,7 +63,11 @@ struct DetailProjectScreen: View {
         _topic   = State(initialValue: project.topic)
         _script  = State(initialValue: project.scripts.first?.content ?? "")
         _caption = State(initialValue: project.captions.first?.content ?? "")
-
+        // Seed music
+        _selectedSong = State(
+            initialValue: project.music.map { SongSelection(from: $0) }
+        )
+        
         let postDate = project.postDate ?? project.createdAt
         _displayedMonth = State(initialValue: Calendar.current.startOfMonth(for: postDate))
         _selectedDate   = State(initialValue: project.postDate)
@@ -107,14 +112,14 @@ struct DetailProjectScreen: View {
         } message: {
             Text(validationMessage)
         }
-        .confirmationDialog(
-            "Delete \"\(project.title)\"?",
-            isPresented: $showDeleteConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) { deleteProject() }
-            Button("Cancel", role: .cancel) {}
-        }
+//        .confirmationDialog(
+//            "Delete \"\(project.title)\"?",
+//            isPresented: $showDeleteConfirm,
+//            titleVisibility: .visible
+//        ) {
+//            Button("Delete", role: .destructive) { deleteProject() }
+//            Button("Cancel", role: .cancel) {}
+//        }
         .sheet(isPresented: $showAddReferenceSheet) {
             addReferenceSheet
         }
@@ -138,6 +143,10 @@ struct DetailProjectScreen: View {
             let url = docsURL.appendingPathComponent(item.filePath)
             return FileManager.default.fileExists(atPath: url.path) ? url : nil
         }
+        
+//        if let musicItem = project.music {
+//            selectedSong = SongSelection(from: musicItem)
+//        }
     }
     // MARK: - Toolbar
 
@@ -252,7 +261,7 @@ struct DetailProjectScreen: View {
     // MARK: - Music Section
 
     private var musicSection: some View {
-        ProjectMusicSectionView(isExpanded: $musicExpanded)
+        ProjectMusicSectionView(selectedSong: $selectedSong)
     }
 
     // MARK: - When to Post Section
@@ -271,26 +280,39 @@ struct DetailProjectScreen: View {
     // MARK: - Delete Section
 
     private var deleteSection: some View {
-        Button {
-            showDeleteConfirm = true
-        } label: {
-            HStack {
-                Spacer()
-                Label("Delete Project", systemImage: "trash")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.brandOrange)
-                Spacer()
+        ZStack{
+            Color.brandOrange
+                .frame(width: 340, height: 35)
+                .blur(radius: 300)
+            Button {
+                showDeleteConfirm = true
+            } label: {
+                HStack {
+                    Spacer()
+                    Label("Delete Project", systemImage: "trash")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.red)
+                    Spacer()
+                }
+                .padding(.vertical, 14)
+                
             }
-            .padding(.vertical, 14)
-            .background(Color.white)
-            .cornerRadius(14)
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.red.opacity(0.3), lineWidth: 1.5)
-            )
+            .glassEffect()
+            .tint(.orange)
+                    .confirmationDialog(
+                        "Delete \"\(project.title)\"?",
+                        isPresented: $showDeleteConfirm,
+                        titleVisibility: .visible
+                    ) {
+                        Button("Delete", role: .destructive) { deleteProject() }
+                        Button("Cancel", role: .cancel) {}
+                    }
+//                    .buttonStyle(.glassProminent)
+            //        .tint(.orange)
+            
         }
-        .buttonStyle(.plain)
     }
+
 
     // MARK: - Save Logic
     private func saveChanges() {
@@ -334,6 +356,9 @@ struct DetailProjectScreen: View {
         } else if !trimmedCaption.isEmpty {
             project.captions.append(CaptionItem(content: trimmedCaption, platform: "tiktok"))
         }
+        
+        // Save selected music
+        project.music = selectedSong?.toMusicItem()
 
         // Update images — delete old files, save current ones
         for imageItem in project.images {

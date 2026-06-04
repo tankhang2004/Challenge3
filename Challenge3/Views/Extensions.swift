@@ -51,6 +51,10 @@ extension URL: @retroactive Identifiable {
     public var id: String { absoluteString }
 }
 
+extension UIImage: @retroactive Identifiable {
+    public var id: ObjectIdentifier { ObjectIdentifier(self) }
+}
+
 extension SharedContentManager {
 
     /// Saves a UIImage to the app's documents directory and returns the filename.

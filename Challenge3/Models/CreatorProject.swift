@@ -23,6 +23,9 @@ final class CreatorProject {
     
     @Relationship(deleteRule: .cascade)
     var references: [ReferenceItem] = []
+    
+    @Relationship(deleteRule: .cascade)
+    var music: MusicItem? = nil
 
     var postDate: Date?
 
