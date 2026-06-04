@@ -10,7 +10,7 @@ import SwiftData
 
 @main
 struct Challenge3App: App {
-
+    @AppStorage("hasSeenStartup") private var hasSeenStartup = false
     let sharedContainer: ModelContainer
 
     init() {
@@ -46,7 +46,11 @@ struct Challenge3App: App {
     var body: some Scene {
         WindowGroup {
 //            HomePageScreen()
-            StartupView()
+            if hasSeenStartup {
+                HomePageScreen()
+            } else {
+                StartupView()
+            }
         }
         .modelContainer(sharedContainer)
     }

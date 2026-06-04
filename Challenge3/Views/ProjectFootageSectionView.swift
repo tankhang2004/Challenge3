@@ -11,6 +11,7 @@ struct FootageSectionView: View {
     @Binding var footageVideoURLs: [URL]         // ← new: loaded video file URLs
     
     @State private var activeVideoURL: URL? = nil
+    @State private var activeImage: UIImage? = nil      // ← new
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -30,6 +31,9 @@ struct FootageSectionView: View {
                                     .frame(width: 90, height: 90)
                                     .clipped()
                                     .cornerRadius(8)
+                                    .onTapGesture {
+                                        activeImage = footageImages[i]       // ← tap to view
+                                    }
 
                                 Button {
                                     var imgs = footageImages
@@ -50,6 +54,9 @@ struct FootageSectionView: View {
                         ForEach(footageVideoURLs.indices, id: \.self) { i in
                             ZStack(alignment: .topTrailing) {
                                 VideoThumbnailView(url: footageVideoURLs[i])
+                                    //without scaledToFit(), it will affect nearby region, clicking nearby region (in this case: left) will accidentally click it
+                                    .scaledToFit()
+//                                    .scaledToFill()
                                     .frame(width: 90, height: 90)
                                     .cornerRadius(8)
                                     .clipped()
@@ -119,6 +126,9 @@ struct FootageSectionView: View {
         }
         .fullScreenCover(item: $activeVideoURL) { url in
             VideoPlayerView(url: url)
+        }
+        .fullScreenCover(item: $activeImage) { image in
+            ImageViewerView(image: image)
         }
     }
 

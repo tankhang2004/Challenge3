@@ -9,7 +9,7 @@ import SwiftData
 struct ShareRootView: View {
     let rawText: String?
     let rawURL: String?
-    let rawImage: UIImage?
+    let rawImages: [UIImage]
     let onDone: () -> Void
     
     // Read live projects from the shared App Group database
@@ -122,12 +122,28 @@ struct ShareRootView: View {
     @ViewBuilder
     private var previewBannerView: some View {
         HStack(spacing: 12) {
-            if let image = rawImage {
-                Image(uiImage: image)
+            if let firstImage = rawImages.first {
+
+                Image(uiImage: firstImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 8)
+                    )
+                    .overlay(alignment: .bottomTrailing) {
+
+                        if rawImages.count > 1 {
+
+                            Text("+\(rawImages.count - 1)")
+                                .font(.caption2)
+                                .padding(4)
+                                .background(.black.opacity(0.7))
+                                .foregroundColor(.white)
+                                .clipShape(Capsule())
+                        }
+                    }
+
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -139,7 +155,15 @@ struct ShareRootView: View {
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(rawURL != nil ? "Shared URL Link" : (rawImage != nil ? "Shared Visual Asset" : "Shared Text Snip"))
+                Text(
+                    rawURL != nil
+                        ? "Shared URL Link"
+                        : rawImages.count > 1
+                            ? "\(rawImages.count) Images"
+                            : !rawImages.isEmpty
+                                ? "Shared Image"
+                                : "Shared Text Snip"
+                )
                     .font(.caption)
                     .foregroundColor(.gray)
                     .fontWeight(.bold)
@@ -151,7 +175,7 @@ struct ShareRootView: View {
             Spacer()
         }
         .padding(12)
-        .background(Color.white)
+        .background(Color.cardSurface)
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
     }
@@ -183,39 +207,61 @@ struct ShareRootView: View {
 //    }
     private func saveReferenceToProject() {
         guard let targetProject = selectedProject else { return }
-        
-        // 1. Parse and extract values from what the user is sharing
+
         let platformString = extractPlatform(from: rawURL)
-        let fallbackTitle = rawText?.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40) ?? "Shared Reference"
-        
-        // If it's a URL, use it as the title/url. If it's pure text, use the snippet text.
-        let finalTitle = rawURL ?? String(fallbackTitle)
-        let finalURL = rawURL ?? ""
-        let imageFilename = rawImage.flatMap { SharedContentManager.shared.saveImage($0) }
-        let fullText = rawImage == nil ? rawText?.trimmingCharacters(in: .whitespacesAndNewlines) : nil
-        
-        // 2. Initialize using your exact 4-parameter schema
-        let newReference = ReferenceItem(
-            title: finalTitle,
-            creator: "Shared via Extension", // A tag so you know where it came from
-            platform: platformString,
-            url: finalURL,
-            imageFilename: imageFilename,
-            fullText: fullText
-        )
-        
-        // 3. Append to the target project's SwiftData array relationship
-        targetProject.references.append(newReference)
-        
-        // 4. Force context persistence saving
+
+        if !rawImages.isEmpty {
+
+            for image in rawImages {
+
+                guard let filename =
+                    SharedContentManager.shared.saveImage(image)
+                else { continue }
+
+                let newReference = ReferenceItem(
+                    title: "Shared Image",
+                    creator: "Shared via Extension",
+                    platform: platformString,
+                    url: "",
+                    imageFilename: filename,
+                    fullText: nil
+                )
+
+                targetProject.references.append(newReference)
+            }
+
+        } else {
+
+            let fallbackTitle =
+                rawText?
+                .trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+                .prefix(40)
+                ?? "Shared Reference"
+
+            let newReference = ReferenceItem(
+                title: rawURL ?? String(fallbackTitle),
+                creator: "Shared via Extension",
+                platform: platformString,
+                url: rawURL ?? "",
+                imageFilename: nil,
+                fullText: rawText
+            )
+
+            targetProject.references.append(newReference)
+        }
+
         if let context = targetProject.modelContext {
             do {
                 try context.save()
+
                 withAnimation {
                     isSaved = true
                 }
+
             } catch {
-                print("❌ SwiftData Save Error: \(error.localizedDescription)")
+                print(error)
             }
         }
     }

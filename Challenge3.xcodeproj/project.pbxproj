@@ -56,21 +56,31 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B1567FF92FD0FD9200F3CA5B /* Exceptions for "Challenge3" folder in "Challenge3" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B1CD2AD72FC516880086EAF4 /* Challenge3 */;
+		};
 		B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Models/CaptionItem.swift,
 				Models/CreatorProject.swift,
 				Models/ImageItem.swift,
+				Models/MusicItem.swift,
 				Models/ReferenceItem.swift,
 				Models/ScriptItem.swift,
 				Models/VideoItem.swift,
 				Models/VideoThumbnailGenerator.swift,
+				MusicPlayerManager.swift,
 				Screens/ShareAppScreen.swift,
 				Screens/ShareGalleryScreen.swift,
 				SharedContent.swift,
 				SharedStorageManager.swift,
 				Views/Extensions.swift,
+				Views/ImageViewerView.swift,
 				Views/ProjectFootageSectionView.swift,
 				Views/ProjectMusicSectionView.swift,
 				Views/ProjectReferenceSectionView.swift,
@@ -94,6 +104,7 @@
 		B1CD2ADA2FC516880086EAF4 /* Challenge3 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				B1567FF92FD0FD9200F3CA5B /* Exceptions for "Challenge3" folder in "Challenge3" target */,
 				B1A2E7632FC87F92009C91E6 /* Exceptions for "Challenge3" folder in "Challenge3Ext" target */,
 			);
 			path = Challenge3;
@@ -530,10 +541,11 @@
 				DEVELOPMENT_TEAM = 9SDHH46ZX7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Lumio;
+				INFOPLIST_FILE = Challenge3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -566,10 +578,11 @@
 				DEVELOPMENT_TEAM = 9SDHH46ZX7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Lumio;
+				INFOPLIST_FILE = Challenge3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;

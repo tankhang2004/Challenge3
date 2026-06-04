@@ -182,10 +182,13 @@ struct ReferencePreviewView: View {
                    let image = SharedContentManager.shared.loadImage(filename: filename) {
                     Image(uiImage: image)
                         .resizable()
-                        .scaledToFill()
+                        .scaledToFit()
 
                 } else if let url {
                     URLPreviewView(url: url)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+//                        .scaledToFit()
 
                 } else if isTextOnly {
                     VStack(alignment: .leading, spacing: 10) {

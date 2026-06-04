@@ -21,7 +21,7 @@ struct URLPreviewView: UIViewRepresentable {
         let view = LPLinkView()
         view.contentMode = .scaleAspectFill
         view.backgroundColor = .clear
-
+        
         let provider = LPMetadataProvider()
         context.coordinator.metadataProvider = provider
 
