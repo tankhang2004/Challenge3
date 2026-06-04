@@ -53,6 +53,8 @@ public struct AddProjectScreen: View {
     @State private var showValidationAlert: Bool = false
     @State private var validationMessage: String = ""
     @State private var isSaving: Bool = false
+    
+    @State private var selectedSong: SongSelection? = nil
 
     // MARK: - Body
 
@@ -68,6 +70,7 @@ public struct AddProjectScreen: View {
                     scriptSection
                     footageSection
                     captionSection
+                    musicSection
                     whenToPostSection
                 }
                 .padding(.horizontal, 20)
@@ -226,6 +229,10 @@ public struct AddProjectScreen: View {
             showTimePicker: $showTimePicker
         )
     }
+    
+    private var musicSection: some View {
+        ProjectMusicSectionView(selectedSong: $selectedSong)
+    }
 
     // MARK: - Save Logic
 
@@ -278,6 +285,9 @@ public struct AddProjectScreen: View {
             project.references.append(ref)
         }
         
+        // Save selected music
+        project.music = selectedSong?.toMusicItem()
+        
         // Attach images
         for image in footageImages {
             if let filename = SharedContentManager.shared.saveImage(image) {
@@ -328,7 +338,7 @@ public struct AddProjectScreen: View {
             showValidationAlert = true
         }
         print("📍 APP GROUP URL:", FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
+            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
         ) as Any)
     }
 

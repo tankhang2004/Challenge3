@@ -12,7 +12,7 @@ class ShareViewController: UIViewController {
     
     private var sharedText: String?
     private var sharedURL: String?
-    private var sharedImage: UIImage?
+    private var sharedImages: [UIImage] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +33,9 @@ class ShareViewController: UIViewController {
             if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
                 dispatchGroup.enter()
                 provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
-                    self?.sharedImage = image as? UIImage
+                    if let image = image as? UIImage {
+                        self?.sharedImages.append(image)
+                    }
                     dispatchGroup.leave()
                 }
             }
@@ -75,13 +77,13 @@ class ShareViewController: UIViewController {
         let rootView = ShareRootView(
             rawText: sharedText,
             rawURL: sharedURL,
-            rawImage: sharedImage,
+            rawImages: sharedImages,
             onDone: onDoneHandler
         )
         
         // Link extension container data store configs to match app container shared URL parameters
         let sharedConfiguration = ModelConfiguration(
-            url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Lumio")!
+            url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3")!
                 .appendingPathComponent("LumioData.sqlite")
         )
         
@@ -95,7 +97,7 @@ class ShareViewController: UIViewController {
             rootView: rootView.modelContainer(container)
         )
         print("📍 APP GROUP URL:", FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
+            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
         ) as Any)
         addChild(hosting)
         hosting.view.frame = view.bounds

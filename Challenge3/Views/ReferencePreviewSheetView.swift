@@ -70,7 +70,7 @@ struct ReferencePreviewSheetView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(displayTitle)
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
 
                         Text(displayCreator)
                             .font(.system(size: 15, weight: .medium))
@@ -95,10 +95,10 @@ struct ReferencePreviewSheetView: View {
                                 Text("Open Link")
                             }
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(Color.primary)
+                            .foregroundColor(Color.brandBlue)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color.brandBlue)
+                            .background(Color.brandBlue.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                         .buttonStyle(.plain)
@@ -144,7 +144,7 @@ struct ReferencePreviewSheetView: View {
                 if let image = previewImage {
                     ZStack {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color.white)
+                            .fill(Color.cardSurface)
                             .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
 
                         Image(uiImage: image)
@@ -156,12 +156,13 @@ struct ReferencePreviewSheetView: View {
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color.white)
+                            .fill(Color.cardSurface)
                             .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
 
                         Group {
                             if let previewURL {
                                 URLPreviewView(url: previewURL)
+//                                    .scaledToFill()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .clipped()
                             } else if isTextOnlyReference {
@@ -176,7 +177,7 @@ struct ReferencePreviewSheetView: View {
 
                                         Text(textPreview)
                                             .font(.system(size: 18, weight: .semibold))
-                                            .foregroundColor(.black)
+                                            .foregroundColor(.primary)
                                             .multilineTextAlignment(.leading)
                                             .fixedSize(horizontal: false, vertical: true)
 

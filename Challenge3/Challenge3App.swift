@@ -10,12 +10,12 @@ import SwiftData
 
 @main
 struct Challenge3App: App {
-
+    @AppStorage("hasSeenStartup") private var hasSeenStartup = false
     let sharedContainer: ModelContainer
 
     init() {
         let groupURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
+            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
         )
 
         let storeURL: URL
@@ -45,7 +45,12 @@ struct Challenge3App: App {
 
     var body: some Scene {
         WindowGroup {
-            HomePageScreen()
+//            HomePageScreen()
+            if hasSeenStartup {
+                HomePageScreen()
+            } else {
+                StartupView()
+            }
         }
         .modelContainer(sharedContainer)
     }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StartupView: View {
     @State private var goToHome = false
+    @AppStorage("hasSeenStartup") private var hasSeenStartup = false
 
     var body: some View {
         ZStack {
@@ -46,10 +47,11 @@ struct StartupView: View {
                     .multilineTextAlignment(.center)
 
                 Button {
+                    hasSeenStartup = true
                     goToHome = true
                 } label: {
                     Text("Get Started")
-                        .font(.title.bold())
+                        .font(.title2.bold())
                         .foregroundStyle(Color.white)
                         .padding(.vertical, 18)
                         .frame(width: 198, height: 68)
@@ -59,15 +61,15 @@ struct StartupView: View {
                                     .init(color: Color.secondaryOrange, location: 0),
                                     .init(color: Color.brandOrange, location: 1)
                                 ]),
-                                startPoint: .top,
-                                endPoint: .bottom
+                                startPoint: .bottom,
+                                endPoint: .top
                             )
                         )
                         .clipShape(Capsule())
                         .overlay(
                             Capsule()
-                                .stroke(Color.white, lineWidth: 2)
-                                .padding(-5)
+                                .stroke(Color.white, lineWidth: 1)
+                                .padding(0)
                         )
                 }
                 .padding(.horizontal, 32)
