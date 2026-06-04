@@ -15,7 +15,7 @@ struct Challenge3App: App {
 
     init() {
         let groupURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
+            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
         )
 
         let storeURL: URL
@@ -45,7 +45,8 @@ struct Challenge3App: App {
 
     var body: some Scene {
         WindowGroup {
-            HomePageScreen()
+//            HomePageScreen()
+            StartupView()
         }
         .modelContainer(sharedContainer)
     }

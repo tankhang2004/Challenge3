@@ -81,7 +81,7 @@ class ShareViewController: UIViewController {
         
         // Link extension container data store configs to match app container shared URL parameters
         let sharedConfiguration = ModelConfiguration(
-            url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.Lumio")!
+            url: FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3")!
                 .appendingPathComponent("LumioData.sqlite")
         )
         
@@ -95,7 +95,7 @@ class ShareViewController: UIViewController {
             rootView: rootView.modelContainer(container)
         )
         print("📍 APP GROUP URL:", FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
+            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
         ) as Any)
         addChild(hosting)
         hosting.view.frame = view.bounds
