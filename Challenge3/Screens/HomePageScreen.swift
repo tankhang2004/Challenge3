@@ -640,7 +640,9 @@ struct MenuCard: View {
                     {
                         Image(uiImage: image)
                             .resizable()
+//                            .scaledToFit()
                             .scaledToFill()
+                            .frame(width: 40, height: 120)
                     }
                     else {
                         Image(systemName: "photo")
@@ -653,6 +655,7 @@ struct MenuCard: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 120)
 
+
                 if isSelecting {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .font(.title3)
@@ -661,6 +664,8 @@ struct MenuCard: View {
                         .padding(8)
                 }
             }
+            .frame(maxWidth: .infinity)
+            .frame(height: 120)
 
             ZStack(alignment: .leading) {
                 Color.brandBlue
@@ -696,7 +701,7 @@ struct AddNewProjectNameSheet: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            TextField("e.g. Day in My Life Vlog", text: $projectName)
+            TextField("e.g. Day in  My Life Vlog", text: $projectName)
                 .font(.system(size: 16))
                 .padding(14)
                 .background(Color(.secondarySystemBackground))

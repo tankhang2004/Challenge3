@@ -12,7 +12,7 @@ class ShareViewController: UIViewController {
     
     private var sharedText: String?
     private var sharedURL: String?
-    private var sharedImage: UIImage?
+    private var sharedImages: [UIImage] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +33,9 @@ class ShareViewController: UIViewController {
             if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
                 dispatchGroup.enter()
                 provider.loadObject(ofClass: UIImage.self) { [weak self] image, _ in
-                    self?.sharedImage = image as? UIImage
+                    if let image = image as? UIImage {
+                        self?.sharedImages.append(image)
+                    }
                     dispatchGroup.leave()
                 }
             }
@@ -75,7 +77,7 @@ class ShareViewController: UIViewController {
         let rootView = ShareRootView(
             rawText: sharedText,
             rawURL: sharedURL,
-            rawImage: sharedImage,
+            rawImages: sharedImages,
             onDone: onDoneHandler
         )
         

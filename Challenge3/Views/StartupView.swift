@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StartupView: View {
     @State private var goToHome = false
+    @AppStorage("hasSeenStartup") private var hasSeenStartup = false
 
     var body: some View {
         ZStack {
@@ -46,6 +47,7 @@ struct StartupView: View {
                     .multilineTextAlignment(.center)
 
                 Button {
+                    hasSeenStartup = true
                     goToHome = true
                 } label: {
                     Text("Get Started")
