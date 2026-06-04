@@ -59,9 +59,9 @@
       launchAutomaticallySubstyle = "2"
       queueDebuggingEnableBacktraceRecording = "Yes">
       <RemoteRunnable
-         runnableDebuggingMode = "0"
-         BundleIdentifier = "com.apple.mobilesafari"
-         RemotePath = "/var/containers/Bundle/Application/9420A1E1-A49F-4D71-B108-38175867D426/MobileSafari.app">
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.springboard"
+         RemotePath = "/Today">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
