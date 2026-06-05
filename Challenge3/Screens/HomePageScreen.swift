@@ -52,9 +52,13 @@ struct HomePageScreen: View {
     @State private var showNameModal: Bool = false
 
     // MARK: Category State
+    @AppStorage(kCategoriesStorageKey) private var categoriesRaw: String = kCategoriesDefault
     @State private var showAddCategoryAlert: Bool = false
     @State private var newCategoryName: String = ""
-    @State private var categories: [String] = ["Instagram", "TikTok", "YouTube", "Twitter/X"]
+
+    private var categories: [String] {
+        categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+    }
 
     let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -90,12 +94,13 @@ struct HomePageScreen: View {
             result = result.filter { !$0.captions.isEmpty }
         }
 
-        // 5. Category filter (matches caption platform)
+        // 5. Category filter — project bisa punya banyak kategori (comma-separated)
         if let category = selectedCategory {
             result = result.filter { project in
-                project.captions.contains {
-                    $0.platform.lowercased() == category.lowercased()
-                }
+                project.category
+                    .split(separator: ",")
+                    .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+                    .contains(category.lowercased())
             }
         }
 
@@ -185,20 +190,20 @@ struct HomePageScreen: View {
                 .presentationDetents([.fraction(0.42)])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(UIWindowScene.cornerRadius)
-                .presentationBackground(Color(.systemBackground).opacity(0.45))
+                .presentationBackground(.regularMaterial)
             }
             .alert("New Category", isPresented: $showAddCategoryAlert) {
-                TextField("e.g. TikTok, YouTube Shorts…", text: $newCategoryName)
+                TextField("e.g. Finance, Health…", text: $newCategoryName)
                 Button("Add") {
                     let name = newCategoryName.trimmingCharacters(in: .whitespaces)
                     if !name.isEmpty && !categories.contains(name) {
-                        categories.append(name)
+                        categoriesRaw = categoriesRaw + "," + name
                     }
                     newCategoryName = ""
                 }
                 Button("Cancel", role: .cancel) { newCategoryName = "" }
             } message: {
-                Text("Enter a content type for your projects.")
+                Text("Enter a name for the new category.")
             }
             .confirmationDialog(
                 "Delete \(selectedIDs.count) project\(selectedIDs.count == 1 ? "" : "s")?",
@@ -682,6 +687,7 @@ struct MenuCard: View {
 
 struct AddNewProjectNameSheet: View {
     @State private var projectName: String = ""
+    @FocusState private var isNameFocused: Bool
     let onConfirm: (String) -> Void
 
     var body: some View {
@@ -694,10 +700,14 @@ struct AddNewProjectNameSheet: View {
                 .foregroundStyle(.secondary)
 
             TextField("e.g. Day in My Life Vlog", text: $projectName)
-                .font(.subheadline)
+                .font(.system(size: 16))
                 .padding(14)
                 .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .focused($isNameFocused)
+                .onChange(of: projectName) { _, v in
+                    if v.count > 80 { projectName = String(v.prefix(80)) }
+                }
 
             Button {
                 let name = projectName.trimmingCharacters(in: .whitespaces)
@@ -719,6 +729,12 @@ struct AddNewProjectNameSheet: View {
             .disabled(projectName.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(24)
+        .onAppear {
+            // Delay kecil agar sheet sudah selesai animasi sebelum keyboard muncul
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isNameFocused = true
+            }
+        }
     }
 }
 
