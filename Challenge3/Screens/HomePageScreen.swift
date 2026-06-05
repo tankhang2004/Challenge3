@@ -189,7 +189,6 @@ struct HomePageScreen: View {
                 }
                 .presentationDetents([.fraction(0.42)])
                 .presentationDragIndicator(.visible)
-//                .presentationCornerRadius(24)
                 .presentationCornerRadius(UIWindowScene.cornerRadius)
                 .presentationBackground(.regularMaterial)
             }
@@ -376,9 +375,9 @@ struct HomePageScreen: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
-        .background(isActive ? Color.brandOrange : Color(.systemFill))
+        .glassEffect((isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular), in: .capsule)
         .foregroundStyle(isActive ? Color.white : Color.primary)
-        .clipShape(Capsule())
+        .clipShape(.capsule)
         .shadow(color: Color.black.opacity(0.07), radius: 3, x: 0, y: 1)
     }
 
@@ -486,9 +485,7 @@ struct HomePageScreen: View {
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 56, height: 56)
-                    .background(Color.brandOrange)
-                    .clipShape(Circle())
-                    .shadow(color: Color.brandOrange.opacity(0.4), radius: 8, x: 0, y: 4)
+                    .glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)), in: .circle)
             }
             .accessibilityLabel("Add new project")
         }
@@ -633,11 +630,6 @@ struct MenuCard: View {
             ZStack(alignment: .topLeading) {
                 ZStack {
                     Color.primary.opacity(0.08)
-//                    Image(systemName: "photo")
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 40, height: 40)
-//                        .foregroundColor(Color(.systemGray4))
                     if let filename = item.project.thumbnailFilename,
                        let image =
                             SharedContentManager.shared
@@ -645,9 +637,9 @@ struct MenuCard: View {
                     {
                         Image(uiImage: image)
                             .resizable()
-//                            .scaledToFit()
                             .scaledToFill()
-                            .frame(width: 40, height: 120)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 120)
                     }
                     else {
                         Image(systemName: "photo")
@@ -699,7 +691,7 @@ struct AddNewProjectNameSheet: View {
     let onConfirm: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 25) {
             Text("New Project")
                 .font(.title2.bold())
 
@@ -732,7 +724,7 @@ struct AddNewProjectNameSheet: View {
                             ? Color.brandBlue.opacity(0.4)
                             : Color.brandBlue
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(RoundedRectangle(cornerRadius: UIWindowScene.cornerRadius))
             }
             .disabled(projectName.trimmingCharacters(in: .whitespaces).isEmpty)
         }

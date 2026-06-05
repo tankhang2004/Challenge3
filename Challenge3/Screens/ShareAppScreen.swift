@@ -76,7 +76,7 @@ struct ShareAppScreen: View {
 
                 // Note + link preview card
                 VStack(alignment: .leading, spacing: 0) {
-                    TextField("Add text to your project", text: $noteText, axis: .vertical)
+                    TextField("Add a reason why do you save this...", text: $noteText, axis: .vertical)
                         .padding(.horizontal, 16)
                         .padding(.top, 14)
                         .padding(.bottom, 12)
@@ -122,12 +122,8 @@ struct ShareAppScreen: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: onCancel) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "xmark.circle")
-                        }
+                        Image(systemName: "xmark")
                         .foregroundStyle(.red)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
                     }
                 }
                 
@@ -137,10 +133,10 @@ struct ShareAppScreen: View {
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save", action: onSave)
+                    Button(action: onSave) {
+                        Image(systemName: "checkmark")
+                    }
                         .foregroundStyle(.blue)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
                 }
             }
         }
