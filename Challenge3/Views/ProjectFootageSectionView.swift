@@ -12,6 +12,8 @@ struct FootageSectionView: View {
 
     @State private var activeVideoURL: URL? = nil
     @State private var activeImage: UIImage? = nil
+    
+    var subtitle: String? = nil
 
     private var strokeColor: Color {
         let totalCount = footageImages.count + footageVideoURLs.count
@@ -22,6 +24,11 @@ struct FootageSectionView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Footage")
                 .font(.headline)
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             VStack(spacing: 12) {
 

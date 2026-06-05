@@ -13,8 +13,25 @@ struct ProjectWhenToPostSectionView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("When to Post")
-                .font(.headline)
+            HStack {
+                Text("When to Post")
+                    .font(.headline)
+                Spacer()
+                if selectedDate != nil {
+                    Button {
+                        selectedDate = nil
+                    } label: {
+                        Text("Clear")
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.gray.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
 
             // MARK: Calendar Card
             VStack(spacing: 10) {

@@ -162,6 +162,7 @@ public struct AddProjectScreen: View {
             label: "Outline",
             placeholder: "E.g.: This content talks about my daily life, with the main focus being my student life at ADA.",
             text: $outline,
+            subtitle: "Write a general outline of what your content will cover.",
             hasError: outlineHasError,
             errorMessage: "Outline can't be empty"
         )
@@ -172,9 +173,10 @@ public struct AddProjectScreen: View {
     private var scriptSection: some View {
         ProjectTextFieldView(
             label: "Script",
-            placeholder: "Write your script here...",
+            placeholder: "E.g. Hook: Wanna find out how an ADA student spend their day? Watch till the end! \nMain: G'morning, this is how I start my day...",
             text: $script,
-            editorMinHeight: 80
+            editorMinHeight: 80,
+            subtitle: "Write down your script"
         )
     }
 
@@ -182,9 +184,10 @@ public struct AddProjectScreen: View {
     private var captionSection: some View {
         ProjectTextFieldView(
             label: "Caption",
-            placeholder: "Write your caption here...",
+            placeholder: "E.g.: A day in my life as an ADA student! Come with me on this journey! #fyp #foryoupage ",
             text: $caption,
             editorMinHeight: 90,
+            subtitle: "Write down your caption",
             hasError: captionHasError,
             errorMessage: "Caption has exceeded the 2200 character limit"
         )
@@ -208,7 +211,8 @@ public struct AddProjectScreen: View {
             },
             onTap: { ref in
                 previewReference = ReferencePreviewPayload(reference: ref)
-            }
+            },
+            subtitle: "Add links to videos that you might use as a reference"
         )
     }
 //
@@ -230,7 +234,8 @@ public struct AddProjectScreen: View {
         FootageSectionView(
             footageImages: $footageImages,
             footagePickerItems: $footagePickerItems,
-            footageVideoURLs: $footageVideoURLs             // ← new
+            footageVideoURLs: $footageVideoURLs,
+            subtitle: "Add photos and videos that you will use for the content"// ← new
         )
     }
     
