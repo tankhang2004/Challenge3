@@ -9,11 +9,20 @@ struct ProjectTextFieldView: View {
     @Binding var text: String
     var font: Font = .subheadline
     var editorMinHeight: CGFloat = 72
+    var limit: Int? = nil   // karakter maksimum, nil = tidak ada batas
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(label)
-                .font(.headline)
+            HStack(alignment: .firstTextBaseline) {
+                Text(label)
+                    .font(.headline)
+                Spacer()
+                if let limit {
+                    Text("\(text.count)/\(limit)")
+                        .font(.caption)
+                        .foregroundStyle(text.count >= limit ? Color.red : Color.secondary)
+                }
+            }
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
@@ -39,6 +48,11 @@ struct ProjectTextFieldView: View {
                     .frame(minHeight: editorMinHeight)
             }
             .frame(minHeight: editorMinHeight + 16)
+        }
+        .onChange(of: text) { _, newValue in
+            if let limit, newValue.count > limit {
+                text = String(newValue.prefix(limit))
+            }
         }
     }
 }

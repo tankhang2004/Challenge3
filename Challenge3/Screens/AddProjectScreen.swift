@@ -6,7 +6,6 @@ import SwiftData
 import PhotosUI
 
 public struct AddProjectScreen: View {
-    
 
     // MARK: - Environment
 
@@ -15,9 +14,19 @@ public struct AddProjectScreen: View {
 
     // MARK: - Form State
     @State private var title: String
-    @State private var topic: String = ""
-    @State private var script: String = ""
+    @State private var topic: String   = ""   // ditampilkan sebagai "Outline"
+    @State private var script: String  = ""
     @State private var caption: String = ""
+
+    // MARK: - Category State
+    @AppStorage(kCategoriesStorageKey) private var categoriesRaw: String = kCategoriesDefault
+    @State private var selectedCategories: Set<String> = []
+    @State private var showAddCategoryAlert: Bool = false
+    @State private var newCategoryInput: String = ""
+
+    private var categoryList: [String] {
+        categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+    }
 
     // MARK: - Init
     public init(initialTitle: String = "") {
@@ -44,7 +53,7 @@ public struct AddProjectScreen: View {
 
     @State private var footagePickerItems: [PhotosPickerItem] = []
     @State private var footageImages: Array<UIImage> = []
-    @State private var footageVideoURLs: [URL] = []          // ← new
+    @State private var footageVideoURLs: [URL] = []
 
     @State private var showFootagePicker: Bool = false
 
@@ -53,7 +62,7 @@ public struct AddProjectScreen: View {
     @State private var showValidationAlert: Bool = false
     @State private var validationMessage: String = ""
     @State private var isSaving: Bool = false
-    
+
     @State private var selectedSong: SongSelection? = nil
 
     // MARK: - Body
@@ -65,7 +74,8 @@ public struct AddProjectScreen: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     titleSection
-                    topicSection
+                    categorySection
+                    outlineSection
                     referencesSection
                     scriptSection
                     footageSection
@@ -82,9 +92,23 @@ public struct AddProjectScreen: View {
         .navigationBarBackButtonHidden(true)
         .toolbar { toolbarContent }
         .alert("Missing Info", isPresented: $showValidationAlert) {
-            Button("OK", role: .cancel) {}
+            Button("Got it", role: .cancel) {}
         } message: {
             Text(validationMessage)
+        }
+        .alert("New Category", isPresented: $showAddCategoryAlert) {
+            TextField("e.g. Finance, Health…", text: $newCategoryInput)
+            Button("Add") {
+                let name = newCategoryInput.trimmingCharacters(in: .whitespaces)
+                if !name.isEmpty && !categoryList.contains(name) {
+                    categoriesRaw = categoriesRaw + "," + name
+                    selectedCategories.insert(name)
+                }
+                newCategoryInput = ""
+            }
+            Button("Cancel", role: .cancel) { newCategoryInput = "" }
+        } message: {
+            Text("Enter a name for the new category.")
         }
         .sheet(isPresented: $showAddReferenceSheet) {
             addReferenceSheet
@@ -102,13 +126,9 @@ public struct AddProjectScreen: View {
             Button {
                 dismiss()
             } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-//                    Text("Add Project")
-//                        .font(.system(size: 17, weight: .semibold))
-                }
-                .foregroundColor(Color.accentColor)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Color.accentColor)
             }
         }
 
@@ -116,23 +136,16 @@ public struct AddProjectScreen: View {
             Button {
                 saveProject()
             } label: {
-                ZStack {
-//                    Circle()
-//                        .fill(isSaving ? Color.gray : Color(hex: "3FA9F7"))
-//                        .frame(width: 36, height: 36)
-                    if isSaving {
-                        ProgressView()
-                            .tint(.blue)
-                            .scaleEffect(0.7)
-                    } else {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.accentColor)
-                    }
+                if isSaving {
+                    ProgressView()
+                        .tint(.blue)
+                        .scaleEffect(0.7)
+                } else {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.accentColor)
                 }
             }
-//            .buttonStyle(.plain)                    // ✅ kills liquid glass container entirely
-//            .buttonBorderShape(.circle)             // ✅ forces hit area to circle
             .disabled(isSaving)
         }
     }
@@ -141,18 +154,29 @@ public struct AddProjectScreen: View {
     private var titleSection: some View {
         ProjectTextFieldView(
             label: "Project Title",
-            placeholder: "Give your project a name...",
+            placeholder: "Give your project a name…",
             text: $title,
-            editorMinHeight: 48
+            editorMinHeight: 48,
+            limit: 80
+        )
+    }
+
+    // MARK: - Category Section
+    private var categorySection: some View {
+        CategoryPickerSectionView(
+            selectedCategories: $selectedCategories,
+            categories: categoryList,
+            onAddCategory: { showAddCategoryAlert = true }
         )
     }
 
     // MARK: - Topic Section
-    private var topicSection: some View {
+    private var outlineSection: some View {
         ProjectTextFieldView(
             label: "Topic",
-            placeholder: "Enter your project topic...",
-            text: $topic
+            placeholder: "Enter your project topic…",
+            text: $topic,
+            limit: 1000
         )
     }
 
@@ -160,9 +184,10 @@ public struct AddProjectScreen: View {
     private var scriptSection: some View {
         ProjectTextFieldView(
             label: "Script",
-            placeholder: "Write your script here...",
+            placeholder: "Write your script here…",
             text: $script,
-            editorMinHeight: 80
+            editorMinHeight: 80,
+            limit: 5000
         )
     }
 
@@ -170,9 +195,10 @@ public struct AddProjectScreen: View {
     private var captionSection: some View {
         ProjectTextFieldView(
             label: "Caption",
-            placeholder: "Write your caption here...",
+            placeholder: "Write your caption here…",
             text: $caption,
-            editorMinHeight: 90
+            editorMinHeight: 90,
+            limit: 2200   // Instagram & TikTok standard limit
         )
     }
 
@@ -194,9 +220,7 @@ public struct AddProjectScreen: View {
             }
         )
     }
-//
-//    // MARK: - Add Reference Sheet
-//
+
     private var addReferenceSheet: some View {
         AddReferenceSheetView { newRef in
             pendingReferences.append(newRef)
@@ -205,18 +229,17 @@ public struct AddProjectScreen: View {
             showAddReferenceSheet = false
         }
     }
-//
-    
+
     // MARK: - Footage Section
 
     private var footageSection: some View {
         FootageSectionView(
             footageImages: $footageImages,
             footagePickerItems: $footagePickerItems,
-            footageVideoURLs: $footageVideoURLs             // ← new
+            footageVideoURLs: $footageVideoURLs
         )
     }
-    
+
     // MARK: - When to Post Section
 
     private var whenToPostSection: some View {
@@ -229,7 +252,7 @@ public struct AddProjectScreen: View {
             showTimePicker: $showTimePicker
         )
     }
-    
+
     private var musicSection: some View {
         ProjectMusicSectionView(selectedSong: $selectedSong)
     }
@@ -237,96 +260,76 @@ public struct AddProjectScreen: View {
     // MARK: - Save Logic
 
     private func saveProject() {
-        // Validate required fields
+        // Validasi judul wajib diisi
         guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please enter a project title."
-            showValidationAlert = true
-            return
-        }
-        guard !topic.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please enter a topic."
+            validationMessage = "Please give your project a title before saving."
             showValidationAlert = true
             return
         }
 
         isSaving = true
 
-        // Build postDate by combining selectedDate + hour/minute
+        // Hitung postDate dari tanggal + jam yang dipilih
         let postDate: Date? = selectedDate.map { day in
             var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
-            components.hour = isAM ? postHour % 12 : (postHour % 12) + 12
+            components.hour   = isAM ? postHour % 12 : (postHour % 12) + 12
             components.minute = postMinute
             return Calendar.current.date(from: components) ?? day
         }
-        
-        
-        // Create the SwiftData object
+
+        // Buat objek SwiftData
         let project = CreatorProject(
             title: title.trimmingCharacters(in: .whitespaces),
             topic: topic.trimmingCharacters(in: .whitespaces),
             createdAt: .now
         )
+        project.category = categoriesToString(selectedCategories)
         project.postDate = postDate
 
-        // Attach script
+        // Lampirkan script
         if !script.trimmingCharacters(in: .whitespaces).isEmpty {
-            let scriptItem = ScriptItem(content: script)
-            project.scripts.append(scriptItem)
+            project.scripts.append(ScriptItem(content: script))
         }
 
-        // Attach caption
+        // Lampirkan caption
         if !caption.trimmingCharacters(in: .whitespaces).isEmpty {
-            let captionItem = CaptionItem(content: caption, platform: "tiktok")
-            project.captions.append(captionItem)
+            project.captions.append(CaptionItem(content: caption, platform: "tiktok"))
         }
 
-        // Attach references
+        // Lampirkan references
         for ref in pendingReferences {
             project.references.append(ref)
         }
-        
-        // Save selected music
+
+        // Simpan musik
         project.music = selectedSong?.toMusicItem()
-        
-        // Attach images
+
+        // Lampirkan gambar
         for image in footageImages {
             if let filename = SharedContentManager.shared.saveImage(image) {
-                let item = ImageItem(filename: filename)
-                project.images.append(item)
+                project.images.append(ImageItem(filename: filename))
             }
         }
 
-        // Attach videos
+        // Lampirkan video
         for videoURL in footageVideoURLs {
             let filename = "\(UUID().uuidString).mov"
             let destURL = FileManager.default.urls(
                 for: .documentDirectory, in: .userDomainMask
             )[0].appendingPathComponent(filename)
-
             if (try? FileManager.default.copyItem(at: videoURL, to: destURL)) != nil {
-                let item = VideoItem(filePath: filename)
-                project.videos.append(item)
+                project.videos.append(VideoItem(filePath: filename))
             }
         }
-        
-        var thumbnailFilename: String?
+
+        // Thumbnail
         if let firstImage = footageImages.first {
-
-            thumbnailFilename =
-                SharedContentManager.shared.saveImage(firstImage)
+            project.thumbnailFilename = SharedContentManager.shared.saveImage(firstImage)
+        } else if let firstVideoURL = footageVideoURLs.first,
+                  let thumbnail = VideoThumbnailGenerator.thumbnail(from: firstVideoURL) {
+            project.thumbnailFilename = SharedContentManager.shared.saveImage(thumbnail)
         }
-        else if let firstVideoURL = footageVideoURLs.first,
-                let thumbnail =
-                    VideoThumbnailGenerator.thumbnail(
-                        from: firstVideoURL
-                    )
-        {
-            thumbnailFilename =
-                SharedContentManager.shared.saveImage(thumbnail)
-        }
-        project.thumbnailFilename = thumbnailFilename
 
-        // Insert and save
         modelContext.insert(project)
 
         do {
@@ -334,14 +337,10 @@ public struct AddProjectScreen: View {
             dismiss()
         } catch {
             isSaving = false
-            validationMessage = "Failed to save: \(error.localizedDescription)"
+            validationMessage = "Something went wrong while saving. Please try again."
             showValidationAlert = true
         }
-        print("📍 APP GROUP URL:", FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
-        ) as Any)
     }
-
 }
 
 // MARK: - Add Reference Sheet
@@ -356,18 +355,46 @@ struct AddReferenceSheetView: View {
     let onAdd: (ReferenceItem) -> Void
     let onCancel: () -> Void
 
+    // Validasi URL: boleh kosong, tapi kalau diisi harus http/https
+    private var isURLValid: Bool {
+        let trimmed = refURL.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return true }
+        return trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://")
+    }
+
+    private var canAdd: Bool {
+        !refTitle.trimmingCharacters(in: .whitespaces).isEmpty && isURLValid
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Reference Details") {
                     TextField("Title", text: $refTitle)
+                        .onChange(of: refTitle) { _, v in
+                            if v.count > 100 { refTitle = String(v.prefix(100)) }
+                        }
+
                     TextField("Creator / @handle", text: $refCreator)
+                        .onChange(of: refCreator) { _, v in
+                            if v.count > 80 { refCreator = String(v.prefix(80)) }
+                        }
+
                     Picker("Platform", selection: $refPlatform) {
                         ForEach(platforms, id: \.self) { Text($0) }
                     }
-                    TextField("URL (optional)", text: $refURL)
-                        .keyboardType(.URL)
-                        .autocapitalization(.none)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        TextField("URL (optional)", text: $refURL)
+                            .keyboardType(.URL)
+                            .autocapitalization(.none)
+
+                        if !isURLValid {
+                            Text("Please enter a valid URL starting with https://")
+                                .font(.caption)
+                                .foregroundStyle(Color.red)
+                        }
+                    }
                 }
             }
             .navigationTitle("Add Reference")
@@ -379,21 +406,19 @@ struct AddReferenceSheetView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
                         let ref = ReferenceItem(
-                            title: refTitle,
-                            creator: refCreator,
+                            title: refTitle.trimmingCharacters(in: .whitespaces),
+                            creator: refCreator.trimmingCharacters(in: .whitespaces),
                             platform: refPlatform,
-                            url: refURL
+                            url: refURL.trimmingCharacters(in: .whitespaces)
                         )
                         onAdd(ref)
                     }
-                    .disabled(refTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(!canAdd)
                 }
             }
         }
     }
 }
-
-
 
 // MARK: - Preview
 

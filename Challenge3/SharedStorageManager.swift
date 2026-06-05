@@ -4,7 +4,7 @@ final class SharedContentManager {
 
     static let shared = SharedContentManager()
 
-    private let groupID = "group.Lumio"
+    private let groupID = "group.com.richard.challenge3"
 
     // MARK: - Container URL
 

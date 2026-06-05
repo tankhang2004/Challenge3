@@ -17,12 +17,22 @@ struct DetailProjectScreen: View {
 
     @Bindable var project: CreatorProject
 
-    // MARK: - Local edit state (mirrors the project fields)
+    // MARK: - Local edit state
 
     @State private var title: String
-    @State private var topic: String
+    @State private var topic: String     // disimpan sebagai "Outline" di UI
     @State private var script: String
     @State private var caption: String
+
+    // MARK: - Category State
+    @AppStorage(kCategoriesStorageKey) private var categoriesRaw: String = kCategoriesDefault
+    @State private var selectedCategories: Set<String>
+    @State private var showAddCategoryAlert: Bool = false
+    @State private var newCategoryInput: String = ""
+
+    private var categoryList: [String] {
+        categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+    }
 
     // MARK: - When to Post State
 
@@ -42,43 +52,39 @@ struct DetailProjectScreen: View {
 
     @State private var footagePickerItems: [PhotosPickerItem] = []
     @State private var footageImages: Array<UIImage> = []
-    @State private var footageVideoURLs: [URL] = []         // ← new
-
+    @State private var footageVideoURLs: [URL] = []
 
     // MARK: - UI State
 
-    @State private var musicExpanded: Bool = false
     @State private var showValidationAlert: Bool = false
     @State private var validationMessage: String = ""
     @State private var isSaving: Bool = false
     @State private var showDeleteConfirm: Bool = false
 
     @State private var selectedSong: SongSelection? = nil
-    // MARK: - Init — seed local state from the project
+
+    // MARK: - Init
 
     init(project: CreatorProject) {
         self.project = project
 
-        _title   = State(initialValue: project.title)
-        _topic   = State(initialValue: project.topic)
-        _script  = State(initialValue: project.scripts.first?.content ?? "")
-        _caption = State(initialValue: project.captions.first?.content ?? "")
-        // Seed music
-        _selectedSong = State(
-            initialValue: project.music.map { SongSelection(from: $0) }
-        )
-        
+        _title          = State(initialValue: project.title)
+        _topic          = State(initialValue: project.topic)
+        _script         = State(initialValue: project.scripts.first?.content ?? "")
+        _caption        = State(initialValue: project.captions.first?.content ?? "")
+        _selectedCategories = State(initialValue: categoriesFromString(project.category))
+        _selectedSong   = State(initialValue: project.music.map { SongSelection(from: $0) })
+
         let postDate = project.postDate ?? project.createdAt
         _displayedMonth = State(initialValue: Calendar.current.startOfMonth(for: postDate))
         _selectedDate   = State(initialValue: project.postDate)
 
-        // Decompose postDate into hour / minute / AM-PM
-        let cal        = Calendar.current
-        let rawHour    = project.postDate.map { cal.component(.hour, from: $0) } ?? 12
-        let rawMinute  = project.postDate.map { cal.component(.minute, from: $0) } ?? 0
-        _isAM          = State(initialValue: rawHour < 12)
-        _postHour      = State(initialValue: rawHour % 12 == 0 ? 12 : rawHour % 12)
-        _postMinute    = State(initialValue: rawMinute)
+        let cal       = Calendar.current
+        let rawHour   = project.postDate.map { cal.component(.hour,   from: $0) } ?? 12
+        let rawMinute = project.postDate.map { cal.component(.minute, from: $0) } ?? 0
+        _isAM         = State(initialValue: rawHour < 12)
+        _postHour     = State(initialValue: rawHour % 12 == 0 ? 12 : rawHour % 12)
+        _postMinute   = State(initialValue: rawMinute)
     }
 
     // MARK: - Body
@@ -90,7 +96,8 @@ struct DetailProjectScreen: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     titleSection
-                    topicSection
+                    categorySection
+                    outlineSection
                     referencesSection
                     scriptSection
                     footageSection
@@ -108,46 +115,44 @@ struct DetailProjectScreen: View {
         .navigationBarBackButtonHidden(true)
         .toolbar { toolbarContent }
         .alert("Missing Info", isPresented: $showValidationAlert) {
-            Button("OK", role: .cancel) {}
+            Button("Got it", role: .cancel) {}
         } message: {
             Text(validationMessage)
         }
-//        .confirmationDialog(
-//            "Delete \"\(project.title)\"?",
-//            isPresented: $showDeleteConfirm,
-//            titleVisibility: .visible
-//        ) {
-//            Button("Delete", role: .destructive) { deleteProject() }
-//            Button("Cancel", role: .cancel) {}
-//        }
+        .alert("New Category", isPresented: $showAddCategoryAlert) {
+            TextField("e.g. Finance, Health…", text: $newCategoryInput)
+            Button("Add") {
+                let name = newCategoryInput.trimmingCharacters(in: .whitespaces)
+                if !name.isEmpty && !categoryList.contains(name) {
+                    categoriesRaw = categoriesRaw + "," + name
+                    selectedCategories.insert(name)
+                }
+                newCategoryInput = ""
+            }
+            Button("Cancel", role: .cancel) { newCategoryInput = "" }
+        } message: {
+            Text("Enter a name for the new category.")
+        }
         .sheet(isPresented: $showAddReferenceSheet) {
             addReferenceSheet
         }
         .sheet(item: $previewReference) { payload in
             ReferencePreviewSheetView(payload: payload)
         }
-        .onAppear {loadExistingFootage() }
+        .onAppear { loadExistingFootage() }
     }
 
     private func loadExistingFootage() {
-        // Load images
         footageImages = project.images.compactMap { item in
             SharedContentManager.shared.loadImage(filename: item.filename)
         }
-
-        // Load videos from documents directory
-        let docsURL = FileManager.default.urls(
-            for: .documentDirectory, in: .userDomainMask
-        )[0]
+        let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         footageVideoURLs = project.videos.compactMap { item in
             let url = docsURL.appendingPathComponent(item.filePath)
             return FileManager.default.fileExists(atPath: url.path) ? url : nil
         }
-        
-//        if let musicItem = project.music {
-//            selectedSong = SongSelection(from: musicItem)
-//        }
     }
+
     // MARK: - Toolbar
 
     @ToolbarContentBuilder
@@ -156,9 +161,9 @@ struct DetailProjectScreen: View {
             Button {
                 dismiss()
             } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(Color.brandBlue)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(Color.brandBlue)
             }
             .buttonStyle(.plain)
         }
@@ -186,18 +191,29 @@ struct DetailProjectScreen: View {
     private var titleSection: some View {
         ProjectTextFieldView(
             label: "Project Title",
-            placeholder: "Give your project a name...",
+            placeholder: "Give your project a name…",
             text: $title,
-            editorMinHeight: 48
+            editorMinHeight: 48,
+            limit: 80
+        )
+    }
+
+    // MARK: - Category Section
+    private var categorySection: some View {
+        CategoryPickerSectionView(
+            selectedCategories: $selectedCategories,
+            categories: categoryList,
+            onAddCategory: { showAddCategoryAlert = true }
         )
     }
 
     // MARK: - Topic Section
-    private var topicSection: some View {
+    private var outlineSection: some View {
         ProjectTextFieldView(
             label: "Topic",
-            placeholder: "Enter your project topic...",
-            text: $topic
+            placeholder: "Enter your project topic…",
+            text: $topic,
+            limit: 1000
         )
     }
 
@@ -205,9 +221,10 @@ struct DetailProjectScreen: View {
     private var scriptSection: some View {
         ProjectTextFieldView(
             label: "Script",
-            placeholder: "Write your script here...",
+            placeholder: "Write your script here…",
             text: $script,
-            editorMinHeight: 80
+            editorMinHeight: 80,
+            limit: 5000
         )
     }
 
@@ -215,9 +232,10 @@ struct DetailProjectScreen: View {
     private var captionSection: some View {
         ProjectTextFieldView(
             label: "Caption",
-            placeholder: "Write your caption here...",
+            placeholder: "Write your caption here…",
             text: $caption,
-            editorMinHeight: 90
+            editorMinHeight: 90,
+            limit: 2200   // Instagram & TikTok standard limit
         )
     }
 
@@ -239,6 +257,7 @@ struct DetailProjectScreen: View {
             }
         )
     }
+
     private var addReferenceSheet: some View {
         AddReferenceSheetView { newRef in
             project.references.append(newRef)
@@ -280,7 +299,7 @@ struct DetailProjectScreen: View {
     // MARK: - Delete Section
 
     private var deleteSection: some View {
-        ZStack{
+        ZStack {
             Color.brandOrange
                 .frame(width: 340, height: 35)
                 .blur(radius: 300)
@@ -295,45 +314,35 @@ struct DetailProjectScreen: View {
                     Spacer()
                 }
                 .padding(.vertical, 14)
-                
             }
             .glassEffect()
             .tint(.orange)
-                    .confirmationDialog(
-                        "Delete \"\(project.title)\"?",
-                        isPresented: $showDeleteConfirm,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Delete", role: .destructive) { deleteProject() }
-                        Button("Cancel", role: .cancel) {}
-                    }
-//                    .buttonStyle(.glassProminent)
-            //        .tint(.orange)
-            
+            .confirmationDialog(
+                "Delete \"\(project.title)\"?",
+                isPresented: $showDeleteConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) { deleteProject() }
+                Button("Cancel", role: .cancel) {}
+            }
         }
     }
 
-
     // MARK: - Save Logic
+
     private func saveChanges() {
         guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please enter a project title."
-            showValidationAlert = true
-            return
-        }
-        guard !topic.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please enter a topic."
+            validationMessage = "Please give your project a title before saving."
             showValidationAlert = true
             return
         }
 
         isSaving = true
 
-        // Update top-level fields
-        project.title = title.trimmingCharacters(in: .whitespaces)
-        project.topic = topic.trimmingCharacters(in: .whitespaces)
+        project.title    = title.trimmingCharacters(in: .whitespaces)
+        project.topic    = topic.trimmingCharacters(in: .whitespaces)
+        project.category = categoriesToString(selectedCategories)
 
-        // Update postDate
         project.postDate = selectedDate.map { day in
             var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
             components.hour   = isAM ? postHour % 12 : (postHour % 12) + 12
@@ -341,7 +350,6 @@ struct DetailProjectScreen: View {
             return Calendar.current.date(from: components) ?? day
         }
 
-        // Update or create script
         let trimmedScript = script.trimmingCharacters(in: .whitespaces)
         if let existing = project.scripts.first {
             existing.content = trimmedScript
@@ -349,18 +357,15 @@ struct DetailProjectScreen: View {
             project.scripts.append(ScriptItem(content: trimmedScript))
         }
 
-        // Update or create caption
         let trimmedCaption = caption.trimmingCharacters(in: .whitespaces)
         if let existing = project.captions.first {
             existing.content = trimmedCaption
         } else if !trimmedCaption.isEmpty {
             project.captions.append(CaptionItem(content: trimmedCaption, platform: "tiktok"))
         }
-        
-        // Save selected music
+
         project.music = selectedSong?.toMusicItem()
 
-        // Update images — delete old files, save current ones
         for imageItem in project.images {
             SharedContentManager.shared.deleteImage(filename: imageItem.filename)
         }
@@ -371,7 +376,6 @@ struct DetailProjectScreen: View {
             }
         }
 
-        // Update videos — delete old files, save current ones
         let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         for videoItem in project.videos {
             let oldURL = docsURL.appendingPathComponent(videoItem.filePath)
@@ -385,29 +389,20 @@ struct DetailProjectScreen: View {
                 project.videos.append(VideoItem(filePath: filename))
             }
         }
-        var thumbnailFilename: String?
-        if let firstImage = footageImages.first {
 
-            thumbnailFilename =
-                SharedContentManager.shared.saveImage(firstImage)
+        if let firstImage = footageImages.first {
+            project.thumbnailFilename = SharedContentManager.shared.saveImage(firstImage)
+        } else if let firstVideoURL = footageVideoURLs.first,
+                  let thumbnail = VideoThumbnailGenerator.thumbnail(from: firstVideoURL) {
+            project.thumbnailFilename = SharedContentManager.shared.saveImage(thumbnail)
         }
-        else if let firstVideoURL = footageVideoURLs.first,
-                let thumbnail =
-                    VideoThumbnailGenerator.thumbnail(
-                        from: firstVideoURL
-                    )
-        {
-            thumbnailFilename =
-                SharedContentManager.shared.saveImage(thumbnail)
-        }
-        project.thumbnailFilename = thumbnailFilename
-        
+
         do {
             try modelContext.save()
             dismiss()
         } catch {
             isSaving = false
-            validationMessage = "Failed to save: \(error.localizedDescription)"
+            validationMessage = "Something went wrong while saving. Please try again."
             showValidationAlert = true
         }
     }
@@ -419,9 +414,7 @@ struct DetailProjectScreen: View {
         try? modelContext.save()
         dismiss()
     }
-
 }
-
 
 // MARK: - Preview
 
