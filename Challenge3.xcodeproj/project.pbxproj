@@ -538,7 +538,7 @@
 				CODE_SIGN_ENTITLEMENTS = Challenge3/Challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9SDHH46ZX7;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Challenge3/Info.plist;
@@ -556,7 +556,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.richard.challenge3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Challenge3.productex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -577,7 +577,7 @@
 				CODE_SIGN_ENTITLEMENTS = Challenge3/Challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9SDHH46ZX7;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Challenge3/Info.plist;
@@ -595,7 +595,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.richard.challenge3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Challenge3.productex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -698,7 +698,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9SDHH46ZX7;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Challenge3Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Challenge3Ext;
@@ -710,7 +710,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.richard.challenge3.ext;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Challenge3.productex.Challenge3Ext;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -730,7 +730,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9SDHH46ZX7;
+				DEVELOPMENT_TEAM = 9VVX62CK44;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Challenge3Ext/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Challenge3Ext;
@@ -742,7 +742,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.richard.challenge3.ext;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Challenge3.productex.Challenge3Ext;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
