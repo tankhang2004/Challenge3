@@ -15,7 +15,7 @@ struct Challenge3App: App {
 
     init() {
         let groupURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.Lumio"
+            forSecurityApplicationGroupIdentifier: "group.com.richard.challenge3"
         )
 
         let storeURL: URL

@@ -7,6 +7,7 @@ final class CreatorProject {
 
     var title: String
     var topic: String
+    var category: String = ""
     var createdAt: Date
     var thumbnailFilename: String?
     @Relationship(deleteRule: .cascade)

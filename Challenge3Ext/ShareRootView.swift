@@ -11,56 +11,107 @@ struct ShareRootView: View {
     let rawURL: String?
     let rawImages: [UIImage]
     let onDone: () -> Void
-    
-    // Read live projects from the shared App Group database
+
+    @Environment(\.modelContext) private var modelContext
     @Query(sort: \CreatorProject.createdAt, order: .reverse) private var projects: [CreatorProject]
+
     @State private var selectedProject: CreatorProject?
+    @State private var isCreatingNew: Bool = false
+    @State private var newProjectTitle: String = ""
     @State private var isSaved = false
-    
+    @State private var savedProjectTitle: String = ""
+
+    // Apakah tombol Save aktif
+    private var canSave: Bool {
+        selectedProject != nil || isCreatingNew
+    }
+
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
                 if !isSaved {
                     VStack(alignment: .leading, spacing: 16) {
-                        // Shared content preview banner
+
+                        // Preview konten yang di-share
                         previewBannerView
                             .padding(.horizontal)
                             .padding(.top)
-                        
-                        Text("Select a Project to add this Reference:")
+
+                        Text("Save to project:")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.gray)
                             .padding(.horizontal)
-                        
-                        // Interactive List Selection
+
+                        // ── Opsi: Buat project baru ──
+                        VStack(alignment: .leading, spacing: 0) {
+                            Button {
+                                isCreatingNew = true
+                                selectedProject = nil
+                            } label: {
+                                HStack {
+                                    Image(
+                                        systemName: isCreatingNew
+                                            ? "checkmark.circle.fill"
+                                            : "plus.circle"
+                                    )
+                                    .foregroundColor(isCreatingNew ? Color.brandBlue : .gray)
+
+                                    Text("Create New Project")
+                                        .font(.body)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                }
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                            }
+                            .buttonStyle(.plain)
+
+                            // Field nama project (opsional)
+                            if isCreatingNew {
+                                TextField("Project name (optional)", text: $newProjectTitle)
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 10)
+                                    .background(Color(.secondarySystemBackground))
+                                    .cornerRadius(10)
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 10)
+                            }
+
+                            Divider()
+                        }
+
+                        // ── Daftar project yang sudah ada ──
                         if projects.isEmpty {
                             VStack(spacing: 8) {
-                                Spacer()
-                                Image(systemName: "folder.badge.questionmark")
-                                    .font(.largeTitle)
+                                Text("No existing projects found.")
+                                    .font(.subheadline)
                                     .foregroundColor(.gray)
-                                Text("No Active Projects Found")
-                                    .font(.headline)
-                                Text("Open Lumio to create a project first.")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                Spacer()
+                                    .padding(.horizontal)
+                                    .padding(.top, 4)
                             }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else {
                             List(projects) { project in
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(project.title.isEmpty ? "Untitled Project" : project.title)
-                                            .font(.body)
-                                            .fontWeight(.medium)
-                                        Text(project.topic)
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                            .lineLimit(1)
+                                        Text(
+                                            project.title.isEmpty
+                                                ? "Untitled Project"
+                                                : project.title
+                                        )
+                                        .font(.body)
+                                        .fontWeight(.medium)
+
+                                        if !project.topic.isEmpty {
+                                            Text(project.topic)
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                                .lineLimit(1)
+                                        }
                                     }
                                     Spacer()
-                                    if selectedProject?.id == project.id {
+                                    if selectedProject?.id == project.id && !isCreatingNew {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundColor(Color.brandBlue)
                                     }
@@ -68,32 +119,34 @@ struct ShareRootView: View {
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     selectedProject = project
+                                    isCreatingNew = false
                                 }
                             }
                             .listStyle(.plain)
                         }
-                        
-                        // Confirm Save Button Area
+
+                        // ── Tombol Simpan ──
                         Button(action: saveReferenceToProject) {
                             Text("Save Reference")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
-                                .background(selectedProject == nil ? Color.gray : Color.brandBlue)
+                                .background(canSave ? Color.brandBlue : Color.gray)
                                 .cornerRadius(12)
                         }
-                        .disabled(selectedProject == nil)
+                        .disabled(!canSave)
                         .padding()
                     }
+
                 } else {
-                    // Success View
+                    // ── Tampilan sukses ──
                     VStack(spacing: 20) {
                         Spacer()
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 70))
                             .foregroundColor(.green)
-                        Text("Saved to \(selectedProject?.title ?? "Lumio")")
+                        Text("Saved to \(savedProjectTitle.isEmpty ? "New Project" : savedProjectTitle)")
                             .font(.title2)
                             .fontWeight(.bold)
                         Spacer()
@@ -117,24 +170,19 @@ struct ShareRootView: View {
             }
         }
     }
-    
-    // MARK: - Dynamic Preview Builder
+
+    // MARK: - Dynamic Preview Banner
     @ViewBuilder
     private var previewBannerView: some View {
         HStack(spacing: 12) {
             if let firstImage = rawImages.first {
-
                 Image(uiImage: firstImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 60)
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: 8)
-                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .overlay(alignment: .bottomTrailing) {
-
                         if rawImages.count > 1 {
-
                             Text("+\(rawImages.count - 1)")
                                 .font(.caption2)
                                 .padding(4)
@@ -143,7 +191,6 @@ struct ShareRootView: View {
                                 .clipShape(Capsule())
                         }
                     }
-
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -153,7 +200,7 @@ struct ShareRootView: View {
                         .foregroundColor(.gray)
                 }
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(
                     rawURL != nil
@@ -164,9 +211,10 @@ struct ShareRootView: View {
                                 ? "Shared Image"
                                 : "Shared Text Snip"
                 )
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .fontWeight(.bold)
+                .font(.caption)
+                .foregroundColor(.gray)
+                .fontWeight(.bold)
+
                 Text(rawText ?? rawURL ?? "Media File Attachment")
                     .font(.subheadline)
                     .foregroundColor(.primary)
@@ -179,45 +227,34 @@ struct ShareRootView: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
     }
-    
-    // MARK: - Save Processing Execution
-//    private func saveReferenceToProject() {
-//        guard let targetProject = selectedProject else { return }
-//        
-//        let platformString = extractPlatform(from: rawURL)
-//        let fallbackTitle = rawText?.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40) ?? "Shared Media Reference"
-//        
-//        // Assemble your target ReferenceItem model structural layout schema
-//        let newReference = ReferenceItem(
-//            title: rawURL ?? String(fallbackTitle),
-//            platform: platformString
-//        )
-//        
-//        // Append inside the target project model context
-//        targetProject.references.append(newReference)
-//        
-//        // Context persistence layer commit sequence triggered automatically by SwiftData or manually:
-//        if let context = targetProject.modelContext {
-//            try? context.save()
-//        }
-//        
-//        withAnimation {
-//            isSaved = true
-//        }
-//    }
+
+    // MARK: - Save Logic
+
     private func saveReferenceToProject() {
-        guard let targetProject = selectedProject else { return }
+        let targetProject: CreatorProject
+
+        if isCreatingNew {
+            // Buat project baru
+            let trimmedTitle = newProjectTitle.trimmingCharacters(in: .whitespaces)
+            let newProject = CreatorProject(
+                title: trimmedTitle,
+                topic: "",
+                createdAt: .now
+            )
+            modelContext.insert(newProject)
+            targetProject = newProject
+            savedProjectTitle = trimmedTitle.isEmpty ? "New Project" : trimmedTitle
+        } else {
+            guard let project = selectedProject else { return }
+            targetProject = project
+            savedProjectTitle = project.title
+        }
 
         let platformString = extractPlatform(from: rawURL)
 
         if !rawImages.isEmpty {
-
             for image in rawImages {
-
-                guard let filename =
-                    SharedContentManager.shared.saveImage(image)
-                else { continue }
-
+                guard let filename = SharedContentManager.shared.saveImage(image) else { continue }
                 let newReference = ReferenceItem(
                     title: "Shared Image",
                     creator: "Shared via Extension",
@@ -226,17 +263,12 @@ struct ShareRootView: View {
                     imageFilename: filename,
                     fullText: nil
                 )
-
                 targetProject.references.append(newReference)
             }
-
         } else {
-
             let fallbackTitle =
                 rawText?
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
+                .trimmingCharacters(in: .whitespacesAndNewlines)
                 .prefix(40)
                 ?? "Shared Reference"
 
@@ -248,56 +280,22 @@ struct ShareRootView: View {
                 imageFilename: nil,
                 fullText: rawText
             )
-
             targetProject.references.append(newReference)
         }
 
-        if let context = targetProject.modelContext {
-            do {
-                try context.save()
-
-                withAnimation {
-                    isSaved = true
-                }
-
-            } catch {
-                print(error)
-            }
+        do {
+            try modelContext.save()
+            withAnimation { isSaved = true }
+        } catch {
+            print("❌ ShareRootView save error: \(error)")
         }
     }
-    
+
     private func extractPlatform(from urlString: String?) -> String {
         guard let urlString = urlString?.lowercased() else { return "General Reference" }
         if urlString.contains("instagram.com") { return "Instagram" }
-        if urlString.contains("tiktok.com") { return "TikTok" }
+        if urlString.contains("tiktok.com")    { return "TikTok" }
         if urlString.contains("youtube.com") || urlString.contains("youtu.be") { return "YouTube" }
         return "Web Resource"
     }
 }
-//import SwiftUI
-//
-//struct ShareRootView: View {
-//
-//    let onDone: () -> Void
-//
-//    var body: some View {
-//
-//        VStack(spacing: 20) {
-//
-//            Image(systemName: "checkmark.circle.fill")
-//                .font(.system(size: 60))
-//                .foregroundColor(.green)
-//
-//            Text("Saved to Lumio")
-//                .font(.title2)
-//
-//            Button("Done") {
-//                onDone()
-//            }
-//            .buttonStyle(.borderedProminent)
-//        }
-//        .padding()
-//    }
-//}
-
-
