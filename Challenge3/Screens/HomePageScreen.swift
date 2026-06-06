@@ -637,7 +637,7 @@ struct MenuCard: View {
                     {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFill()
+                            .scaledToFit()
                             .frame(maxWidth: .infinity)
                             .frame(height: 120)
                     }
