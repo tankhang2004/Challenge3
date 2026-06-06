@@ -19,12 +19,19 @@ struct CategoryPickerSectionView: View {
     @Binding var selectedCategories: Set<String>
     let categories: [String]
     let onAddCategory: () -> Void
+    var subtitle: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Category")
-                .font(.headline)
-
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Category")
+                    .font(.headline)
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(categories, id: \.self) { cat in

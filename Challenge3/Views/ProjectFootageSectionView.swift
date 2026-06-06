@@ -12,97 +12,144 @@ struct FootageSectionView: View {
     
     @State private var activeVideoURL: URL? = nil
     @State private var activeImage: UIImage? = nil      // ← new
+    
+    var hasError: Bool = false
+    var subtitle: String? = nil
+
+    private var strokeColor: Color {
+        let totalCount = footageImages.count + footageVideoURLs.count
+        if hasError {
+            return Color(red: 251/255, green: 131/255, blue: 131/255)
+        } else if totalCount > 0 {
+            return Color.brandBlue
+        } else {
+            return Color.white
+        }
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Footage")
-                .font(.headline)
-
+        VStack (alignment: .leading, spacing: 8){
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Footage")
+                    .font(.headline)
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        
             VStack(spacing: 12) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-
-                        // MARK: Image thumbnails
-                        ForEach(footageImages.indices, id: \.self) { i in
-                            ZStack(alignment: .topTrailing) {
-                                Image(uiImage: footageImages[i])
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 90, height: 90)
-                                    .clipped()
-                                    .cornerRadius(8)
-                                    .onTapGesture {
-                                        activeImage = footageImages[i]       // ← tap to view
-                                    }
-
-                                Button {
-                                    var imgs = footageImages
-                                    imgs.remove(at: i)
-                                    footageImages = imgs
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.red.opacity(0.8))
-                                        .background(Color.white.clipShape(Circle()))
-                                }
-                                .buttonStyle(.plain)
-                                .offset(x: 6, y: -6)
+                if footageImages.isEmpty && footageVideoURLs.isEmpty {
+                    PhotosPicker(
+                        selection: $footagePickerItems,
+                        maxSelectionCount: 10,
+                        matching: .any(of: [.images, .videos])
+                    ) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.cardSurface)
+                            VStack(spacing: 6) {
+                                Image(systemName: "photo.badge.plus")
+                                    .font(.system(size: 26))
+                                    .foregroundColor(Color.accentColor.opacity(0.5))
+                                Text("Tap + to add footage")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
                             }
                         }
-
-                        // MARK: Video thumbnails
-                        ForEach(footageVideoURLs.indices, id: \.self) { i in
-                            ZStack(alignment: .topTrailing) {
-                                VideoThumbnailView(url: footageVideoURLs[i])
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 100)
+                    }
+                    .onChange(of: footagePickerItems) { _, newItems in
+                        loadFootage(from: newItems)
+                    }
+                } else {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack (spacing: 10) {
+                            
+                            // MARK: - Image thumbnails
+                            ForEach(footageImages.indices, id: \.self) { i in
+                                ZStack(alignment: .topTrailing) {
+                                    Image(uiImage: footageImages[i])
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 90, height: 90)
+                                        .clipped()
+                                        .cornerRadius(8)
+                                        .onTapGesture {
+                                            activeImage = footageImages[i]       // ← tap to view
+                                        }
+                                    
+                                    Button {
+                                        var imgs = footageImages
+                                        imgs.remove(at: i)
+                                        footageImages = imgs
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(.red.opacity(0.8))
+                                            .background(Color.white.clipShape(Circle()))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .offset(x: 6, y: -6)
+                                }
+                            }
+                            
+                            // MARK: - Video thumbnails
+                            ForEach(footageVideoURLs.indices, id: \.self) { i in
+                                ZStack(alignment: .topTrailing) {
+                                    VideoThumbnailView(url: footageVideoURLs[i])
                                     //without scaledToFit(), it will affect nearby region, clicking nearby region (in this case: left) will accidentally click it
-                                    .scaledToFit()
-//                                    .scaledToFill()
-                                    .frame(width: 90, height: 90)
-                                    .cornerRadius(8)
-                                    .clipped()
-                                    .onTapGesture {
-                                        activeVideoURL = footageVideoURLs[i]  // ← tap to play
+                                        .scaledToFit()
+                                    //                                    .scaledToFill()
+                                        .frame(width: 90, height: 90)
+                                        .cornerRadius(8)
+                                        .clipped()
+                                        .onTapGesture {
+                                            activeVideoURL = footageVideoURLs[i]  // ← tap to play
+                                        }
+                                    
+                                    Button {
+                                        var vids = footageVideoURLs
+                                        vids.remove(at: i)
+                                        footageVideoURLs = vids
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundColor(.red.opacity(0.8))
+                                            .background(Color.white.clipShape(Circle()))
                                     }
-
-                                Button {
-                                    var vids = footageVideoURLs
-                                    vids.remove(at: i)
-                                    footageVideoURLs = vids
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 18))
-                                        .foregroundColor(.red.opacity(0.8))
-                                        .background(Color.white.clipShape(Circle()))
+                                    .buttonStyle(.plain)
+                                    .offset(x: 6, y: -6)
                                 }
-                                .buttonStyle(.plain)
-                                .offset(x: 6, y: -6)
                             }
-                        }
-
-                        // MARK: Add slot
-                        PhotosPicker(
-                            selection: $footagePickerItems,
-                            maxSelectionCount: 10,
-                            matching: .any(of: [.images, .videos])
-                        ) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.gray.opacity(0.1))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(
-                                                Color.gray.opacity(0.3),
-                                                style: StrokeStyle(lineWidth: 1.5, dash: [5])
-                                            )
-                                    )
-                                Image(systemName: "plus")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(Color.gray.opacity(0.4))
+                            
+                            // MARK: - Add slot
+                            PhotosPicker(
+                                selection: $footagePickerItems,
+                                maxSelectionCount: 10,
+                                matching: .any(of: [.images, .videos])
+                            ) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.gray.opacity(0.1))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(
+                                                    Color.gray.opacity(0.3),
+                                                    style: StrokeStyle(lineWidth: 1.5, dash: [5])
+                                                )
+                                        )
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 22))
+                                        .foregroundColor(Color.gray.opacity(0.4))
+                                }
+                                .frame(width: 90, height: 90)
                             }
-                            .frame(width: 90, height: 90)
-                        }
-                        .onChange(of: footagePickerItems) { _, newItems in
-                            loadFootage(from: newItems)
+                            .onChange(of: footagePickerItems) { _, newItems in
+                                loadFootage(from: newItems)
+                            }
                         }
                     }
                     .padding(.vertical, 4)
@@ -121,8 +168,9 @@ struct FootageSectionView: View {
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.brandBlue, lineWidth: 1.5)
+                    .stroke(strokeColor, lineWidth: 1.5)
             )
+            .animation(.easeInOut(duration: 0.2), value: footageImages.isEmpty && footageVideoURLs.isEmpty)
         }
         .fullScreenCover(item: $activeVideoURL) { url in
             VideoPlayerView(url: url)

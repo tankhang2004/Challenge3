@@ -9,29 +9,53 @@ struct ProjectTextFieldView: View {
     @Binding var text: String
     var font: Font = .subheadline
     var editorMinHeight: CGFloat = 72
-    var limit: Int? = nil   // karakter maksimum, nil = tidak ada batas
+    var limit: Int? = nil
+    var subtitle: String? = nil
+    var hasError: Bool = false
+    var errorMessage: String? = nil
 
+// MARK: - Computed Stroke Color
+
+    private var strokeColor: Color {
+        if hasError {
+            return Color(red: 251/255, green: 131/255, blue: 131/255)
+        } else if !text.isEmpty {
+            return Color.brandBlue
+        } else {
+            return Color.gray.opacity(0.3)
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(label)
-                    .font(.headline)
-                Spacer()
-                if let limit {
-                    Text("\(text.count)/\(limit)")
-                        .font(.caption)
-                        .foregroundStyle(text.count >= limit ? Color.red : Color.secondary)
-                }
-            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(label)
+                                    .font(.headline)
+                                if let subtitle = subtitle {
+                                    Text(subtitle)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                            if let limit {
+                                Text("\(text.count)/\(limit)")
+                                    .font(.caption)
+                                    .foregroundStyle(text.count >= limit ? Color.red : Color.secondary)
+                            }
+                        }
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.cardSurface)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.brandBlue, lineWidth: 1.5)
+                            .stroke(strokeColor, lineWidth: 1.5)
                     )
-
+                    .animation(.easeInOut(duration: 0.2), value: hasError)
+                    .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
+                
                 if text.isEmpty {
                     Text(placeholder)
                         .font(font)
@@ -48,6 +72,13 @@ struct ProjectTextFieldView: View {
                     .frame(minHeight: editorMinHeight)
             }
             .frame(minHeight: editorMinHeight + 16)
+            
+            
+            if hasError, let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundColor(Color(red: 251/255, green: 131/255, blue: 131/255))
+            }
         }
         .onChange(of: text) { _, newValue in
             if let limit, newValue.count > limit {
@@ -55,4 +86,14 @@ struct ProjectTextFieldView: View {
             }
         }
     }
+}
+
+#Preview {
+    ProjectTextFieldView(
+        label: "Script",
+        placeholder: "Write your script here...",
+        text: .constant(""),
+        limit: 5000
+    )
+    .padding()
 }

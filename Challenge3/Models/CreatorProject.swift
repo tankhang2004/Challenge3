@@ -6,7 +6,7 @@ import SwiftData
 final class CreatorProject {
 
     var title: String
-    var topic: String
+    var outline: String
     var category: String = ""
     var createdAt: Date
     var thumbnailFilename: String?
@@ -32,13 +32,13 @@ final class CreatorProject {
 
     init(
         title: String,
-        topic: String,
+        outline: String,
         createdAt: Date = .now,
         thumbnailFilename: String? = nil,
         
     ) {
         self.title = title
-        self.topic = topic
+        self.outline = outline
         self.createdAt = createdAt
         self.thumbnailFilename = thumbnailFilename
     }

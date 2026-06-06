@@ -8,10 +8,18 @@ struct ProjectWhenToPostSectionView: View {
     @Binding var selectedDate: Date?
     @Binding var postHour: Int
     @Binding var postMinute: Int
-    @Binding var isAM: Bool
+    @Binding var isAM: Bool?
     @Binding var showTimePicker: Bool
 
-    var body: some View {
+        private var strokeColor: Color {
+            if selectedDate != nil {
+                return Color.brandBlue
+            } else {
+                return Color.white
+            }
+        }
+
+        var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("When to Post")
                 .font(.headline)
@@ -107,7 +115,7 @@ struct ProjectWhenToPostSectionView: View {
             .cornerRadius(14)
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.brandBlue, lineWidth: 1.5)
+                    .stroke(strokeColor, lineWidth: 1.5)
             )
 
             // MARK: Time Row
@@ -132,7 +140,7 @@ struct ProjectWhenToPostSectionView: View {
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.brandBlue, lineWidth: 1.5)
+                                .stroke(strokeColor, lineWidth: 1.5)
                         )
                 }
                 .buttonStyle(.plain)
@@ -144,7 +152,7 @@ struct ProjectWhenToPostSectionView: View {
             .cornerRadius(14)
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.brandBlue, lineWidth: 1.5)
+                    .stroke(strokeColor, lineWidth: 1.5)
             )
 
             // MARK: Time Picker
@@ -202,12 +210,12 @@ struct ProjectWhenToPostSectionView: View {
 }
 
 public struct AMPMToggle: View {
-    @Binding var isAM: Bool
+    @Binding var isAM: Bool?
 
     public var body: some View {
         HStack(spacing: 0) {
-            periodButton("AM", active: isAM) { isAM = true }
-            periodButton("PM", active: !isAM) { isAM = false }
+            periodButton("AM", active: isAM == true) { isAM = true }
+            periodButton("PM", active: isAM == false) { isAM = false }
         }
         .background(
             RoundedRectangle(cornerRadius: 14)
