@@ -14,7 +14,7 @@ public struct AddProjectScreen: View {
 
     // MARK: - Form State
     @State private var title: String
-    @State private var topic: String   = ""   // ditampilkan sebagai "Outline"
+    @State private var outline: String   = ""   // ditampilkan sebagai "Outline"
     @State private var script: String  = ""
     @State private var caption: String = ""
 
@@ -39,7 +39,7 @@ public struct AddProjectScreen: View {
     @State private var selectedDate: Date? = nil
     @State private var postHour: Int = 12
     @State private var postMinute: Int = 0
-    @State private var isAM: Bool = true
+    @State private var isAM: Bool? = nil
     @State private var showTimePicker: Bool = false
 
     // MARK: - References State
@@ -65,6 +65,13 @@ public struct AddProjectScreen: View {
 
     @State private var selectedSong: SongSelection? = nil
 
+    
+    // MARK: - Error state for title, outline, and caption
+    
+    @State private var titleHasError: Bool = false
+    @State private var outlineHasError: Bool = false
+    @State private var captionHasError: Bool = false
+    
     // MARK: - Body
 
     public var body: some View {
@@ -154,11 +161,14 @@ public struct AddProjectScreen: View {
     private var titleSection: some View {
         ProjectTextFieldView(
             label: "Project Title",
-            placeholder: "Give your project a name…",
+            placeholder: "e.g. Day in My Life Vlog",
             text: $title,
             editorMinHeight: 48,
-            limit: 80
+            limit: 80,
+            hasError: titleHasError,
+            errorMessage: "Title can't be empty"
         )
+        .onChange(of: title) { titleHasError = false }
     }
 
     // MARK: - Category Section
@@ -166,17 +176,21 @@ public struct AddProjectScreen: View {
         CategoryPickerSectionView(
             selectedCategories: $selectedCategories,
             categories: categoryList,
-            onAddCategory: { showAddCategoryAlert = true }
+            onAddCategory: { showAddCategoryAlert = true },
+            subtitle: "Pick a category that fits your content."
         )
     }
 
-    // MARK: - Topic Section
+    // MARK: - Outline Section
     private var outlineSection: some View {
         ProjectTextFieldView(
-            label: "Topic",
-            placeholder: "Enter your project topic…",
-            text: $topic,
-            limit: 1000
+            label: "Outline",
+            placeholder: "E.g.: This content talks about my daily life, with the main focus being my student life at ADA.",
+            text: $outline,
+            limit: 1000,
+            subtitle: "Write a general outline of your content.",
+            hasError: outlineHasError,
+            errorMessage: "Outline can't be empty"
         )
     }
 
@@ -184,10 +198,11 @@ public struct AddProjectScreen: View {
     private var scriptSection: some View {
         ProjectTextFieldView(
             label: "Script",
-            placeholder: "Write your script here…",
+            placeholder: "E.g. Hook: Wanna find out how an ADA student spend their day? Watch till the end! \nMain: G'morning, this is how I start my day...",
             text: $script,
             editorMinHeight: 80,
-            limit: 5000
+            limit: 5000,
+            subtitle: "Write down your script."
         )
     }
 
@@ -195,10 +210,13 @@ public struct AddProjectScreen: View {
     private var captionSection: some View {
         ProjectTextFieldView(
             label: "Caption",
-            placeholder: "Write your caption here…",
+            placeholder: "E.g.: A day in my life as an ADA student! Come with me on this journey! #fyp #foryoupage ",
             text: $caption,
             editorMinHeight: 90,
-            limit: 2200   // Instagram & TikTok standard limit
+            limit: 2200,
+            hasError: captionHasError,
+            errorMessage: "Caption has exceeded the 2200 character limit"
+            // Instagram & TikTok standard limit
         )
     }
 
@@ -217,7 +235,8 @@ public struct AddProjectScreen: View {
             },
             onTap: { ref in
                 previewReference = ReferencePreviewPayload(reference: ref)
-            }
+            },
+            subtitle: "Add links to videos that you might use as a reference."
         )
     }
 
@@ -236,7 +255,8 @@ public struct AddProjectScreen: View {
         FootageSectionView(
             footageImages: $footageImages,
             footagePickerItems: $footagePickerItems,
-            footageVideoURLs: $footageVideoURLs
+            footageVideoURLs: $footageVideoURLs,
+            subtitle: "Add photos and videos that you will use for the content."// ← new
         )
     }
 
@@ -272,7 +292,7 @@ public struct AddProjectScreen: View {
         // Hitung postDate dari tanggal + jam yang dipilih
         let postDate: Date? = selectedDate.map { day in
             var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
-            components.hour   = isAM ? postHour % 12 : (postHour % 12) + 12
+            components.hour   = (isAM == true) ? postHour % 12 : (postHour % 12) + 12
             components.minute = postMinute
             return Calendar.current.date(from: components) ?? day
         }
@@ -280,7 +300,7 @@ public struct AddProjectScreen: View {
         // Buat objek SwiftData
         let project = CreatorProject(
             title: title.trimmingCharacters(in: .whitespaces),
-            topic: topic.trimmingCharacters(in: .whitespaces),
+            outline: outline.trimmingCharacters(in: .whitespaces),
             createdAt: .now
         )
         project.category = categoriesToString(selectedCategories)

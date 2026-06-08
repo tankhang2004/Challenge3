@@ -20,7 +20,7 @@ struct DetailProjectScreen: View {
     // MARK: - Local edit state
 
     @State private var title: String
-    @State private var topic: String     // disimpan sebagai "Outline" di UI
+    @State private var outline: String     // disimpan sebagai "Outline" di UI
     @State private var script: String
     @State private var caption: String
 
@@ -40,7 +40,7 @@ struct DetailProjectScreen: View {
     @State private var selectedDate: Date?
     @State private var postHour: Int
     @State private var postMinute: Int
-    @State private var isAM: Bool
+    @State private var isAM: Bool? = nil
     @State private var showTimePicker: Bool = false
 
     // MARK: - References State
@@ -69,7 +69,7 @@ struct DetailProjectScreen: View {
         self.project = project
 
         _title          = State(initialValue: project.title)
-        _topic          = State(initialValue: project.topic)
+        _outline          = State(initialValue: project.outline)
         _script         = State(initialValue: project.scripts.first?.content ?? "")
         _caption        = State(initialValue: project.captions.first?.content ?? "")
         _selectedCategories = State(initialValue: categoriesFromString(project.category))
@@ -82,7 +82,7 @@ struct DetailProjectScreen: View {
         let cal       = Calendar.current
         let rawHour   = project.postDate.map { cal.component(.hour,   from: $0) } ?? 12
         let rawMinute = project.postDate.map { cal.component(.minute, from: $0) } ?? 0
-        _isAM         = State(initialValue: rawHour < 12)
+        _isAM         = State(initialValue: Optional(rawHour < 12))
         _postHour     = State(initialValue: rawHour % 12 == 0 ? 12 : rawHour % 12)
         _postMinute   = State(initialValue: rawMinute)
     }
@@ -207,12 +207,12 @@ struct DetailProjectScreen: View {
         )
     }
 
-    // MARK: - Topic Section
+    // MARK: - Outline Section
     private var outlineSection: some View {
         ProjectTextFieldView(
-            label: "Topic",
-            placeholder: "Enter your project topic…",
-            text: $topic,
+            label: "Outline",
+            placeholder: "Enter your project outline…",
+            text: $outline,
             limit: 1000
         )
     }
@@ -340,12 +340,12 @@ struct DetailProjectScreen: View {
         isSaving = true
 
         project.title    = title.trimmingCharacters(in: .whitespaces)
-        project.topic    = topic.trimmingCharacters(in: .whitespaces)
+        project.outline    = outline.trimmingCharacters(in: .whitespaces)
         project.category = categoriesToString(selectedCategories)
 
         project.postDate = selectedDate.map { day in
             var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
-            components.hour   = isAM ? postHour % 12 : (postHour % 12) + 12
+            components.hour   = (isAM == true) ? postHour % 12 : (postHour % 12) + 12
             components.minute = postMinute
             return Calendar.current.date(from: components) ?? day
         }
@@ -424,7 +424,7 @@ struct DetailProjectScreen: View {
         for: CreatorProject.self, ReferenceItem.self,
         configurations: config
     )
-    let sample = CreatorProject(title: "Vlog A Day in My Life", topic: "A Day at ADA", createdAt: .now)
+    let sample = CreatorProject(title: "Vlog A Day in My Life", outline: "A Day at ADA", createdAt: .now)
     container.mainContext.insert(sample)
 
     return NavigationStack {

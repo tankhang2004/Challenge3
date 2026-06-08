@@ -103,8 +103,8 @@ struct ShareRootView: View {
                                         .font(.body)
                                         .fontWeight(.medium)
 
-                                        if !project.topic.isEmpty {
-                                            Text(project.topic)
+                                        if !project.outline.isEmpty {
+                                            Text(project.outline)
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
                                                 .lineLimit(1)
@@ -238,7 +238,7 @@ struct ShareRootView: View {
             let trimmedTitle = newProjectTitle.trimmingCharacters(in: .whitespaces)
             let newProject = CreatorProject(
                 title: trimmedTitle,
-                topic: "",
+                outline: "",
                 createdAt: .now
             )
             modelContext.insert(newProject)

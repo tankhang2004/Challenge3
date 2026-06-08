@@ -75,7 +75,7 @@ struct HomePageScreen: View {
         if !query.isEmpty {
             result = result.filter {
                 $0.title.lowercased().contains(query)
-                || $0.topic.lowercased().contains(query)
+                || $0.outline.lowercased().contains(query)
             }
         }
 
