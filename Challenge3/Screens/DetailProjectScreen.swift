@@ -314,8 +314,16 @@ struct DetailProjectScreen: View {
                     Spacer()
                 }
                 .padding(.vertical, 14)
+                .background {
+                    if #available(iOS 26.0, *) {
+                        RoundedRectangle(cornerRadius: 12)
+                            .glassEffect()
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.ultraThinMaterial)
+                    }
+                }
             }
-            .glassEffect()
             .tint(.orange)
             .confirmationDialog(
                 "Delete \"\(project.title)\"?",

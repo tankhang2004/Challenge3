@@ -33,14 +33,38 @@ struct Challenge3App: App {
 
         let config = ModelConfiguration(url: storeURL)
 
-        sharedContainer = try! ModelContainer(
-            for: CreatorProject.self,
-                 ReferenceItem.self,
-                 ScriptItem.self,
-                 CaptionItem.self,
-                 VideoItem.self,
-            configurations: config
+        // Temporary debug — delete after diagnosis
+        let storeExists = FileManager.default.fileExists(atPath: storeURL.path)
+        print("🗄️ Store exists: \(storeExists)")
+        
+        do {
+            sharedContainer = try ModelContainer(
+                for: CreatorProject.self,
+                     ReferenceItem.self,
+                     ScriptItem.self,
+                     CaptionItem.self,
+                     VideoItem.self,
+                    ImageItem.self,
+                    MusicItem.self,
+                migrationPlan: LumioMigrationPlan.self,
+                configurations: config
+            )
+        } catch let error as NSError{
+            // Now you can see the REAL underlying error
+            print("❌ Domain: \(error.domain)")
+            print("❌ Code: \(error.code)")
+            print("❌ Description: \(error.localizedDescription)")
+            print("❌ UserInfo: \(error.userInfo)")
+//            fatalError("Failed to create ModelContainer: \(error)")
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
+        let debugSchema = Schema(
+            LumioSchemaV1.models,
+            version: Schema.Version(1, 0, 0)
         )
+        for entity in debugSchema.entities {
+            print("🔑 \(entity.name ?? "?"): \(entity.uniquenessConstraints)")
+        }
     }
 
     var body: some Scene {

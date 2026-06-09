@@ -10,6 +10,14 @@ final class CreatorProject {
     var category: String = ""
     var createdAt: Date
     var thumbnailFilename: String?
+    var isFavorite: Bool = false  // ← add this
+
+    var isPinned: Bool = false  // ← new property added
+    var isArchived: Bool = false  // ← add this
+    var viewCount: Int = 0
+    var updatedAt: Date = Date()
+
+
     @Relationship(deleteRule: .cascade)
     var scripts: [ScriptItem] = []
 

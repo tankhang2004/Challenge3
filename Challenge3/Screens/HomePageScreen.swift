@@ -375,8 +375,16 @@ struct HomePageScreen: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
-        .glassEffect((isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular), in: .capsule)
         .foregroundStyle(isActive ? Color.white : Color.primary)
+        .background {
+            if #available(iOS 26.0, *) {
+                Capsule()
+                    .glassEffect(isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular)
+            } else {
+                Capsule()
+                    .fill(isActive ? Color.brandOrange : Color.primary.opacity(0.1))
+            }
+        }
         .clipShape(.capsule)
         .shadow(color: Color.black.opacity(0.07), radius: 3, x: 0, y: 1)
     }
@@ -485,7 +493,15 @@ struct HomePageScreen: View {
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 56, height: 56)
-                    .glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)), in: .circle)
+                    .background {
+                        if #available(iOS 26.0, *) {
+                            Circle()
+                                .glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)))
+                        } else {
+                            Circle()
+                                .fill(Color.brandOrange)
+                        }
+                    }
             }
             .accessibilityLabel("Add new project")
         }
