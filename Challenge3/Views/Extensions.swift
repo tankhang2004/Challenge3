@@ -3,7 +3,12 @@
 
 import SwiftUI
 
-
+extension View {
+    @ViewBuilder
+    func modify<T: View>(@ViewBuilder _ transform: (Self) -> T) -> some View {
+        transform(self)
+    }
+}
 // MARK: - Calendar Extension
 
 extension Calendar {

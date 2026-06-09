@@ -299,42 +299,41 @@ struct DetailProjectScreen: View {
     // MARK: - Delete Section
 
     private var deleteSection: some View {
-        ZStack {
-            Color.brandOrange
-                .frame(width: 340, height: 35)
-                .blur(radius: 300)
-            Button {
-                showDeleteConfirm = true
-            } label: {
-                HStack {
-                    Spacer()
-                    Label("Delete Project", systemImage: "trash")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.red)
-                    Spacer()
+            ZStack {
+                Color.brandOrange
+                    .frame(width: 340, height: 35)
+                    .blur(radius: 300)
+                Button {
+                    showDeleteConfirm = true
+                } label: {
+                    HStack {
+                        Spacer()
+                        Label("Delete Project", systemImage: "trash")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.red)
+                        Spacer()
+                    }
+                    .padding(.vertical, 14)
                 }
-                .padding(.vertical, 14)
-                .background {
+//                .glassEffect()
+                .modify {
                     if #available(iOS 26.0, *) {
-                        RoundedRectangle(cornerRadius: 12)
-                            .glassEffect()
+                        $0.glassEffect()
                     } else {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.ultraThinMaterial)
+                        $0.background(.ultraThinMaterial).clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
-            }
-            .tint(.orange)
-            .confirmationDialog(
-                "Delete \"\(project.title)\"?",
-                isPresented: $showDeleteConfirm,
-                titleVisibility: .visible
-            ) {
-                Button("Delete", role: .destructive) { deleteProject() }
-                Button("Cancel", role: .cancel) {}
+                .tint(.orange)
+                .confirmationDialog(
+                    "Delete \"\(project.title)\"?",
+                    isPresented: $showDeleteConfirm,
+                    titleVisibility: .visible
+                ) {
+                    Button("Delete", role: .destructive) { deleteProject() }
+                    Button("Cancel", role: .cancel) {}
+                }
             }
         }
-    }
 
     // MARK: - Save Logic
 

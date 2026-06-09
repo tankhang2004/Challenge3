@@ -365,29 +365,28 @@ struct HomePageScreen: View {
     }
 
     private func pillView(icon: String?, text: String, isActive: Bool) -> some View {
-        HStack(spacing: 5) {
-            if let icon {
-                Image(systemName: icon)
-                    .font(.caption.bold())
+            HStack(spacing: 5) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.caption.bold())
+                }
+                Text(text)
+                    .font(.footnote.bold())
             }
-            Text(text)
-                .font(.footnote.bold())
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
-        .foregroundStyle(isActive ? Color.white : Color.primary)
-        .background {
-            if #available(iOS 26.0, *) {
-                Capsule()
-                    .glassEffect(isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular)
-            } else {
-                Capsule()
-                    .fill(isActive ? Color.brandOrange : Color.primary.opacity(0.1))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+//            .glassEffect((isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular), in: .capsule)
+            .modify {
+                if #available(iOS 26.0, *) {
+                    $0.glassEffect(isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular, in: .capsule)
+                } else {
+                    $0.background(isActive ? Color.brandOrange : Color.primary.opacity(0.1)).clipShape(.capsule)
+                }
             }
+            .foregroundStyle(isActive ? Color.white : Color.primary)
+            .clipShape(.capsule)
+            .shadow(color: Color.black.opacity(0.07), radius: 3, x: 0, y: 1)
         }
-        .clipShape(.capsule)
-        .shadow(color: Color.black.opacity(0.07), radius: 3, x: 0, y: 1)
-    }
 
     // MARK: - Section List
 
@@ -460,54 +459,54 @@ struct HomePageScreen: View {
         }
     }
 
+
     // MARK: - Search + FAB Bar
 
-    private var searchAndFABBar: some View {
-        HStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
+        private var searchAndFABBar: some View {
+            HStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
 
-                TextField("Search projects...", text: $searchText)
-                    .font(.subheadline)
+                    TextField("Search projects...", text: $searchText)
+                        .font(.subheadline)
 
-                if !searchText.isEmpty {
-                    Button { searchText = "" } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color(.systemGray3))
-                    }
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 11)
-            .background(.ultraThinMaterial)
-            .clipShape(Capsule())
-            .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
-
-            Button {
-                newProjectTitle = ""
-                showNameModal = true
-            } label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 56, height: 56)
-                    .background {
-                        if #available(iOS 26.0, *) {
-                            Circle()
-                                .glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)))
-                        } else {
-                            Circle()
-                                .fill(Color.brandOrange)
+                    if !searchText.isEmpty {
+                        Button { searchText = "" } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(Color(.systemGray3))
                         }
                     }
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+
+                Button {
+                    newProjectTitle = ""
+                    showNameModal = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 56, height: 56)
+//                        .glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)), in: .circle)
+                        .modify {
+                            if #available(iOS 26.0, *) {
+                                $0.glassEffect(.regular.tint(Color.brandOrange.opacity(0.8)), in: .circle)
+                            } else {
+                                $0.background(Color.brandOrange).clipShape(.circle)
+                            }
+                        }
+                }
+                .accessibilityLabel("Add new project")
             }
-            .accessibilityLabel("Add new project")
+            .padding(.horizontal, 20)
+            .padding(.bottom, 28)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 28)
-    }
 
     // MARK: - Select Mode Bar
 
