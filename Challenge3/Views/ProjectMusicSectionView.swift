@@ -34,11 +34,11 @@ struct ProjectMusicSectionView: View {
 
                 // Info
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(selectedSong?.title ?? "No music selected")
+                    Text(selectedSong?.title ?? String(localized: "No music selected"))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(selectedSong == nil ? .gray : .primary)
                         .lineLimit(1)
-                    Text(selectedSong?.artistName ?? "Tap + to choose music")
+                    Text(selectedSong?.artistName ?? String(localized:"Tap + to choose music"))
                         .font(.system(size: 13))
                         .foregroundColor(.gray)
                         .lineLimit(1)

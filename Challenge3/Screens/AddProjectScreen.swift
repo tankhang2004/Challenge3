@@ -14,18 +14,26 @@ public struct AddProjectScreen: View {
 
     // MARK: - Form State
     @State private var title: String
-    @State private var outline: String   = ""   // ditampilkan sebagai "Outline"
+    @State private var outline: String   = ""
     @State private var script: String  = ""
     @State private var caption: String = ""
 
     // MARK: - Category State
-    @AppStorage(kCategoriesStorageKey) private var categoriesRaw: String = kCategoriesDefault
+    @AppStorage(kCategoriesStorageKey) private var categoriesRaw: String = ""
     @State private var selectedCategories: Set<String> = []
     @State private var showAddCategoryAlert: Bool = false
     @State private var newCategoryInput: String = ""
 
+    private var defaultCategories: [String] {
+        kCategoriesDefault.split(separator: ",").map(String.init)
+    }
+
+    private var userCategories: [String] {
+        categoriesRaw.isEmpty ? [] : categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+    }
+
     private var categoryList: [String] {
-        categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+        defaultCategories + userCategories
     }
 
     // MARK: - Init
@@ -65,13 +73,12 @@ public struct AddProjectScreen: View {
 
     @State private var selectedSong: SongSelection? = nil
 
-    
     // MARK: - Error state for title, outline, and caption
-    
+
     @State private var titleHasError: Bool = false
     @State private var outlineHasError: Bool = false
     @State private var captionHasError: Bool = false
-    
+
     // MARK: - Body
 
     public var body: some View {
@@ -98,24 +105,26 @@ public struct AddProjectScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar { toolbarContent }
-        .alert("Missing Info", isPresented: $showValidationAlert) {
-            Button("Got it", role: .cancel) {}
+        .alert(String(localized: "Missing Info"), isPresented: $showValidationAlert) {
+            Button(String(localized: "Got it"), role: .cancel) {}
         } message: {
             Text(validationMessage)
         }
-        .alert("New Category", isPresented: $showAddCategoryAlert) {
-            TextField("e.g. Finance, Health…", text: $newCategoryInput)
-            Button("Add") {
+        .alert(String(localized: "New Category"), isPresented: $showAddCategoryAlert) {
+            TextField(String(localized: "e.g. Finance, Health…"), text: $newCategoryInput)
+            Button(String(localized: "Add")) {
                 let name = newCategoryInput.trimmingCharacters(in: .whitespaces)
                 if !name.isEmpty && !categoryList.contains(name) {
-                    categoriesRaw = categoriesRaw + "," + name
+                    var updated = userCategories
+                    updated.append(name)
+                    categoriesRaw = updated.joined(separator: ",")
                     selectedCategories.insert(name)
                 }
                 newCategoryInput = ""
             }
-            Button("Cancel", role: .cancel) { newCategoryInput = "" }
+            Button(String(localized: "Cancel"), role: .cancel) { newCategoryInput = "" }
         } message: {
-            Text("Enter a name for the new category.")
+            Text(String(localized: "Enter a name for the new category."))
         }
         .sheet(isPresented: $showAddReferenceSheet) {
             addReferenceSheet
@@ -160,13 +169,13 @@ public struct AddProjectScreen: View {
     // MARK: - Title Section
     private var titleSection: some View {
         ProjectTextFieldView(
-            label: "Project Title",
-            placeholder: "e.g. Day in My Life Vlog",
+            label: String(localized: "Project Title"),
+            placeholder: String(localized: "e.g. Day in My Life Vlog"),
             text: $title,
             editorMinHeight: 48,
             limit: 80,
             hasError: titleHasError,
-            errorMessage: "Title can't be empty"
+            errorMessage: String(localized: "Title can't be empty")
         )
         .onChange(of: title) { titleHasError = false }
     }
@@ -177,46 +186,46 @@ public struct AddProjectScreen: View {
             selectedCategories: $selectedCategories,
             categories: categoryList,
             onAddCategory: { showAddCategoryAlert = true },
-            subtitle: "Pick a category that fits your content."
+            subtitle: String(localized: "Pick a category that fits your content.")
         )
     }
 
     // MARK: - Outline Section
     private var outlineSection: some View {
         ProjectTextFieldView(
-            label: "Outline",
-            placeholder: "E.g.: This content talks about my daily life, with the main focus being my student life at ADA.",
+            label: String(localized: "Outline"),
+            placeholder: String(localized: "E.g.: This content talks about my daily life, with the main focus being my student life at ADA."),
             text: $outline,
             limit: 1000,
-            subtitle: "Write a general outline of your content.",
+            subtitle: String(localized: "Write a general outline of your content."),
             hasError: outlineHasError,
-            errorMessage: "Outline can't be empty"
+            errorMessage: String(localized: "Outline can't be empty")
         )
     }
 
     // MARK: - Script Section
     private var scriptSection: some View {
         ProjectTextFieldView(
-            label: "Script",
-            placeholder: "E.g. Hook: Wanna find out how an ADA student spend their day? Watch till the end! \nMain: G'morning, this is how I start my day...",
+            label: String(localized: "Script"),
+            placeholder: String(localized: "E.g. Hook: Wanna find out how an ADA student spend their day? Watch till the end! \nMain: G'morning, this is how I start my day..."),
             text: $script,
             editorMinHeight: 80,
             limit: 5000,
-            subtitle: "Write down your script."
+            subtitle: String(localized: "Write down your script.")
         )
     }
 
     // MARK: - Caption Section
     private var captionSection: some View {
         ProjectTextFieldView(
-            label: "Caption",
-            placeholder: "E.g.: A day in my life as an ADA student! Come with me on this journey! #fyp #foryoupage ",
+            label: String(localized: "Caption"),
+            placeholder: String(localized: "E.g.: A day in my life as an ADA student! Come with me on this journey! #fyp #foryoupage"),
             text: $caption,
             editorMinHeight: 90,
             limit: 2200,
+            subtitle: String(localized: "Write a caption for your video."),
             hasError: captionHasError,
-            errorMessage: "Caption has exceeded the 2200 character limit"
-            // Instagram & TikTok standard limit
+            errorMessage: String(localized: "Caption has exceeded the 2200 character limit")
         )
     }
 
@@ -236,7 +245,7 @@ public struct AddProjectScreen: View {
             onTap: { ref in
                 previewReference = ReferencePreviewPayload(reference: ref)
             },
-            subtitle: "Add links to videos that you might use as a reference."
+            subtitle: String(localized: "Add links to videos that you might use as a reference.")
         )
     }
 
@@ -256,7 +265,7 @@ public struct AddProjectScreen: View {
             footageImages: $footageImages,
             footagePickerItems: $footagePickerItems,
             footageVideoURLs: $footageVideoURLs,
-            subtitle: "Add photos and videos that you will use for the content."// ← new
+            subtitle: String(localized: "Add photos and videos that you will use for the content.")
         )
     }
 
@@ -280,16 +289,14 @@ public struct AddProjectScreen: View {
     // MARK: - Save Logic
 
     private func saveProject() {
-        // Validasi judul wajib diisi
         guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
-            validationMessage = "Please give your project a title before saving."
+            validationMessage = String(localized: "Please give your project a title before saving.")
             showValidationAlert = true
             return
         }
 
         isSaving = true
 
-        // Hitung postDate dari tanggal + jam yang dipilih
         let postDate: Date? = selectedDate.map { day in
             var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
             components.hour   = (isAM == true) ? postHour % 12 : (postHour % 12) + 12
@@ -297,7 +304,6 @@ public struct AddProjectScreen: View {
             return Calendar.current.date(from: components) ?? day
         }
 
-        // Buat objek SwiftData
         let project = CreatorProject(
             title: title.trimmingCharacters(in: .whitespaces),
             outline: outline.trimmingCharacters(in: .whitespaces),
@@ -306,32 +312,26 @@ public struct AddProjectScreen: View {
         project.category = categoriesToString(selectedCategories)
         project.postDate = postDate
 
-        // Lampirkan script
         if !script.trimmingCharacters(in: .whitespaces).isEmpty {
             project.scripts.append(ScriptItem(content: script))
         }
 
-        // Lampirkan caption
         if !caption.trimmingCharacters(in: .whitespaces).isEmpty {
             project.captions.append(CaptionItem(content: caption, platform: "tiktok"))
         }
 
-        // Lampirkan references
         for ref in pendingReferences {
             project.references.append(ref)
         }
 
-        // Simpan musik
         project.music = selectedSong?.toMusicItem()
 
-        // Lampirkan gambar
         for image in footageImages {
             if let filename = SharedContentManager.shared.saveImage(image) {
                 project.images.append(ImageItem(filename: filename))
             }
         }
 
-        // Lampirkan video
         for videoURL in footageVideoURLs {
             let filename = "\(UUID().uuidString).mov"
             let destURL = FileManager.default.urls(
@@ -342,7 +342,6 @@ public struct AddProjectScreen: View {
             }
         }
 
-        // Thumbnail
         if let firstImage = footageImages.first {
             project.thumbnailFilename = SharedContentManager.shared.saveImage(firstImage)
         } else if let firstVideoURL = footageVideoURLs.first,
@@ -357,7 +356,7 @@ public struct AddProjectScreen: View {
             dismiss()
         } catch {
             isSaving = false
-            validationMessage = "Something went wrong while saving. Please try again."
+            validationMessage = String(localized: "Something went wrong while saving. Please try again.")
             showValidationAlert = true
         }
     }
@@ -375,7 +374,6 @@ struct AddReferenceSheetView: View {
     let onAdd: (ReferenceItem) -> Void
     let onCancel: () -> Void
 
-    // Validasi URL: boleh kosong, tapi kalau diisi harus http/https
     private var isURLValid: Bool {
         let trimmed = refURL.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return true }
@@ -389,42 +387,42 @@ struct AddReferenceSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Reference Details") {
-                    TextField("Title", text: $refTitle)
+                Section(String(localized: "Reference Details")) {
+                    TextField(String(localized: "Title"), text: $refTitle)
                         .onChange(of: refTitle) { _, v in
                             if v.count > 100 { refTitle = String(v.prefix(100)) }
                         }
 
-                    TextField("Creator / @handle", text: $refCreator)
+                    TextField(String(localized: "Creator / @handle"), text: $refCreator)
                         .onChange(of: refCreator) { _, v in
                             if v.count > 80 { refCreator = String(v.prefix(80)) }
                         }
 
-                    Picker("Platform", selection: $refPlatform) {
+                    Picker(String(localized: "Platform"), selection: $refPlatform) {
                         ForEach(platforms, id: \.self) { Text($0) }
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        TextField("URL (optional)", text: $refURL)
+                        TextField(String(localized: "URL (optional)"), text: $refURL)
                             .keyboardType(.URL)
                             .autocapitalization(.none)
 
                         if !isURLValid {
-                            Text("Please enter a valid URL starting with https://")
+                            Text(String(localized: "Please enter a valid URL starting with https://"))
                                 .font(.caption)
                                 .foregroundStyle(Color.red)
                         }
                     }
                 }
             }
-            .navigationTitle("Add Reference")
+            .navigationTitle(String(localized: "Add Reference"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
+                    Button(String(localized: "Cancel"), action: onCancel)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
+                    Button(String(localized: "Add")) {
                         let ref = ReferenceItem(
                             title: refTitle.trimmingCharacters(in: .whitespaces),
                             creator: refCreator.trimmingCharacters(in: .whitespaces),

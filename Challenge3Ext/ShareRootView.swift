@@ -102,11 +102,7 @@ struct ShareRootView: View {
                             List(projects) { project in
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(
-                                            project.title.isEmpty
-                                                ? "Untitled Project"
-                                                : project.title
-                                        )
+                                        Text(project.title.isEmpty ? String(localized: "Untitled Project") : project.title)
                                         .font(.body)
                                         .fontWeight(.medium)
 
@@ -234,18 +230,15 @@ struct ShareRootView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(
                     rawURL != nil
-                        ? "Shared URL Link"
+                        ? String(localized: "Shared URL Link")
                         : rawImages.count > 1
-                            ? "\(rawImages.count) Shared Images"
+                            ? String(localized: "\(rawImages.count) Shared Images")
                             : !rawImages.isEmpty
-                                ? "Shared Image"
-                                : "Shared Text Snip"
+                                ? String(localized: "Shared Image")
+                                : String(localized: "Shared Text Snip")
                 )
-                .font(.caption)
-                .foregroundColor(.gray)
-                .fontWeight(.bold)
 
-                Text(rawText ?? rawURL ?? "Media File Attachment")
+                Text(rawText ?? rawURL ?? String(localized: "Media File Attachment"))
                     .font(.subheadline)
                     .foregroundColor(.primary)
                     .lineLimit(2)
