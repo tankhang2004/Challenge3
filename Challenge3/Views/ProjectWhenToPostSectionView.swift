@@ -10,16 +10,30 @@ struct ProjectWhenToPostSectionView: View {
     @Binding var postMinute: Int
     @Binding var isAM: Bool?
     @Binding var showTimePicker: Bool
+    
+    private let calendar: Calendar = {
+        var cal = Calendar.current
+        cal.locale = Locale.current
+        return cal
+    }()
 
-        private var strokeColor: Color {
-            if selectedDate != nil {
-                return Color.brandBlue
-            } else {
-                return Color.white
-            }
+    private var weekdays: [String] {
+        let symbols = calendar.veryShortWeekdaySymbols
+        let firstWeekday = calendar.firstWeekday - 1
+
+        return Array(symbols[firstWeekday...] + symbols[..<firstWeekday])
+    }
+
+
+    private var strokeColor: Color {
+        if selectedDate != nil {
+            return Color.brandBlue
+        } else {
+            return Color.white
         }
+    }
 
-        var body: some View {
+    var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("When to Post")
                 .font(.headline)
@@ -61,11 +75,12 @@ struct ProjectWhenToPostSectionView: View {
 
                 // Weekday headers
                 HStack(spacing: 0) {
-                    ForEach(["SUN","MON","TUE","WED","THU","FRI","SAT"], id: \.self) { d in
-                        Text(d)
-                            .font(.caption2.bold())
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity)
+                    ForEach(weekdays, id: \.self) { day in
+                                    Text(day)
+                                        .textCase(.uppercase)
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(.secondary)
+                                        .frame(maxWidth: .infinity)
                     }
                 }
 

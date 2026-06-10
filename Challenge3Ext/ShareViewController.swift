@@ -44,7 +44,12 @@ class ShareViewController: UIViewController {
             if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
                 dispatchGroup.enter()
                 provider.loadObject(ofClass: URL.self) { [weak self] url, _ in
-                    self?.sharedURL = url?.absoluteString
+                    // Clean spaces before storing
+                    if let raw = url?.absoluteString {
+                        let cleaned = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+                        self?.sharedURL = cleaned.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? cleaned
+                    }
+//                    self?.sharedURL = url?.absoluteString
                     dispatchGroup.leave()
                 }
             }

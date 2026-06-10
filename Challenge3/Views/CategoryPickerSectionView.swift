@@ -5,7 +5,15 @@ import SwiftUI
 
 // AppStorage key shared across all screens
 let kCategoriesStorageKey = "lumioCategories"
-let kCategoriesDefault    = "Education,Lifestyle,Entertainment,Business,Tech"
+var kCategoriesDefault: String {
+    [
+        NSLocalizedString("Education", comment: ""),
+        NSLocalizedString("Lifestyle", comment: ""),
+        NSLocalizedString("Entertainment", comment: ""),
+        NSLocalizedString("Business", comment: ""),
+        NSLocalizedString("Tech", comment: ""),
+    ].joined(separator: ",")
+}
 
 // Helper: String comma-separated ↔ Set<String>
 func categoriesFromString(_ str: String) -> Set<String> {

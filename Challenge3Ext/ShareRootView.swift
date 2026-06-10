@@ -20,6 +20,7 @@ struct ShareRootView: View {
     @State private var newProjectTitle: String = ""
     @State private var isSaved = false
     @State private var savedProjectTitle: String = ""
+    @State private var refTitle: String = ""
 
     // Whether the Save button is enabled
     private var canSave: Bool {
@@ -36,7 +37,14 @@ struct ShareRootView: View {
                         previewBannerView
                             .padding(.horizontal)
                             .padding(.top)
-
+                        TextField("Give a name/reason for the reference:", text: $refTitle)
+                            .font(.subheadline)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(10)
+                            .padding(.horizontal)
+                        
                         Text("Save to project:")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.gray)
@@ -75,8 +83,7 @@ struct ShareRootView: View {
                                     .padding(.vertical, 10)
                                     .background(Color(.secondarySystemBackground))
                                     .cornerRadius(10)
-                                    .padding(.horizontal, 16)
-                                    .padding(.bottom, 10)
+                                    .padding(.horizontal)
                             }
 
                             Divider()
@@ -95,11 +102,7 @@ struct ShareRootView: View {
                             List(projects) { project in
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(
-                                            project.title.isEmpty
-                                                ? "Untitled Project"
-                                                : project.title
-                                        )
+                                        Text(project.title.isEmpty ? String(localized: "Untitled Project") : project.title)
                                         .font(.body)
                                         .fontWeight(.medium)
 
@@ -125,18 +128,34 @@ struct ShareRootView: View {
                             .listStyle(.plain)
                         }
 
-                        // ── Save button ──
-                        Button(action: saveReferenceToProject) {
-                            Text("Save Reference")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 50)
-                                .background(canSave ? Color.brandBlue : Color.gray)
-                                .cornerRadius(12)
+                        // ── Tombol Simpan ──
+                        if #available(iOS 26.0, *) {
+                            Button(action: saveReferenceToProject) {
+                                Text("Save Reference")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+//                                    .frame(height: 50)
+//                                    .background(canSave ? Color.brandBlue : Color.gray)
+                                    .cornerRadius(12)
+                            }
+                            .disabled(!canSave)
+                            .padding()
+                            .buttonStyle(.glassProminent)
+                        } else {
+                            // Fallback on earlier versions
+                            Button(action: saveReferenceToProject) {
+                                Text("Save Reference")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 50)
+                                    .background(canSave ? Color.brandBlue : Color.gray)
+                                    .cornerRadius(12)
+                            }
+                            .disabled(!canSave)
+                            .padding()
                         }
-                        .disabled(!canSave)
-                        .padding()
                     }
 
                 } else {
@@ -198,24 +217,28 @@ struct ShareRootView: View {
                         .frame(width: 60, height: 60)
                     Image(systemName: rawURL != nil ? "link" : "doc.text")
                         .foregroundColor(.gray)
+                    if rawURL != nil {
+                        if let urlString = rawURL, let url = URL(string: urlString) {
+                            URLPreviewView(url: url)
+                                .frame(width: 60, height: 60)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
                 }
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(
                     rawURL != nil
-                        ? "Shared URL Link"
+                        ? String(localized: "Shared URL Link")
                         : rawImages.count > 1
-                            ? "\(rawImages.count) Images"
+                            ? String(localized: "\(rawImages.count) Shared Images")
                             : !rawImages.isEmpty
-                                ? "Shared Image"
-                                : "Shared Text Snip"
+                                ? String(localized: "Shared Image")
+                                : String(localized: "Shared Text Snip")
                 )
-                .font(.caption)
-                .foregroundColor(.gray)
-                .fontWeight(.bold)
 
-                Text(rawText ?? rawURL ?? "Media File Attachment")
+                Text(rawText ?? rawURL ?? String(localized: "Media File Attachment"))
                     .font(.subheadline)
                     .foregroundColor(.primary)
                     .lineLimit(2)
@@ -256,7 +279,7 @@ struct ShareRootView: View {
             for image in rawImages {
                 guard let filename = SharedContentManager.shared.saveImage(image) else { continue }
                 let newReference = ReferenceItem(
-                    title: "Shared Image",
+                    title: refTitle.isEmpty ? "Shared Image" : refTitle,
                     creator: "Shared via Extension",
                     platform: platformString,
                     url: "",
@@ -266,14 +289,18 @@ struct ShareRootView: View {
                 targetProject.references.append(newReference)
             }
         } else {
-            let fallbackTitle =
-                rawText?
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-                .prefix(40)
+//            let fallbackTitle =
+//                rawText?
+//                .trimmingCharacters(in: .whitespacesAndNewlines)
+//                .prefix(40)
+//                ?? "Shared Reference"
+            let fallbackTitle: String = rawText
+                .map { String($0.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40)) }
+                ?? rawURL
                 ?? "Shared Reference"
-
             let newReference = ReferenceItem(
-                title: rawURL ?? String(fallbackTitle),
+//                title: rawURL ?? String(fallbackTitle),
+                title: refTitle.isEmpty ? fallbackTitle : refTitle,
                 creator: "Shared via Extension",
                 platform: platformString,
                 url: rawURL ?? "",
@@ -292,10 +319,25 @@ struct ShareRootView: View {
     }
 
     private func extractPlatform(from urlString: String?) -> String {
-        guard let urlString = urlString?.lowercased() else { return "General Reference" }
-        if urlString.contains("instagram.com") { return "Instagram" }
-        if urlString.contains("tiktok.com")    { return "TikTok" }
-        if urlString.contains("youtube.com") || urlString.contains("youtu.be") { return "YouTube" }
-        return "Web Resource"
+        guard let urlString,
+              let host = URL(string: urlString)?.host?.lowercased() else { return "General Reference" }
+
+        let parts = host.split(separator: ".")
+        let sld = parts.count >= 2 ? String(parts[parts.count - 2]) : host
+
+        // Handle known edge cases, capitalize everything else
+        let edgeCases: [String: String] = [
+            "youtu": "YouTube",
+            "youtube": "YouTube",
+            "fb": "Facebook",
+            "redd": "Reddit",
+            "pin": "Pinterest",
+            "x": "X (Twitter)",
+            "twitter": "X (Twitter)",
+        ]
+
+        return edgeCases[sld] ?? sld.capitalized
     }
 }
+
+

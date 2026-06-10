@@ -21,6 +21,10 @@ enum SortOption: String, CaseIterable {
     case oldest   = "Oldest"
     case title    = "Title (A–Z)"
     case postDate = "Post Date"
+    
+    var localized: String {
+        NSLocalizedString(rawValue, comment: "")
+    }
 }
 
 // MARK: - Home Page Screen
@@ -56,9 +60,36 @@ struct HomePageScreen: View {
     @State private var showAddCategoryAlert: Bool = false
     @State private var newCategoryName: String = ""
 
-    private var categories: [String] {
-        categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+    private var defaultCategories: [String] {
+        kCategoriesDefault.split(separator: ",").map(String.init)
     }
+
+    private var userCategories: [String] {
+        categoriesRaw.isEmpty ? [] : categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+    }
+
+    private var categories: [String] {
+        defaultCategories + userCategories
+    }
+
+    private func addCategory(_ name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, !categories.contains(trimmed) else { return }
+        var updated = userCategories
+        updated.append(trimmed)
+        categoriesRaw = updated.joined(separator: ",")
+    }
+
+    private func removeCategory(_ cat: String) {
+        if selectedCategory == cat { selectedCategory = nil }
+        var updated = userCategories
+        updated.removeAll { $0 == cat }
+        categoriesRaw = updated.joined(separator: ",")
+    }
+    
+//    private var categories: [String] {
+//        categoriesRaw.split(separator: ",").map(String.init).filter { !$0.isEmpty }
+//    }
 
     let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -255,21 +286,21 @@ struct HomePageScreen: View {
                 categoryMenu
 
                 filterPill(
-                    text: "Has Deadline",
+                    text: NSLocalizedString("Has Deadline", comment: ""),
                     isActive: filterHasDeadline
                 ) {
                     withAnimation { filterHasDeadline.toggle() }
                 }
 
                 filterPill(
-                    text: "Has Script",
+                    text: NSLocalizedString("Has Script", comment: ""),
                     isActive: filterHasScript
                 ) {
                     withAnimation { filterHasScript.toggle() }
                 }
 
                 filterPill(
-                    text: "Has Caption",
+                    text: NSLocalizedString("Has Caption", comment: ""),
                     isActive: filterHasCaption
                 ) {
                     withAnimation { filterHasCaption.toggle() }
@@ -301,7 +332,7 @@ struct HomePageScreen: View {
         return Menu {
             Picker("Sort By", selection: $sortOption) {
                 ForEach(SortOption.allCases, id: \.self) { option in
-                    Text(option.rawValue).tag(option)
+                    Text(option.localized).tag(option)
                 }
             }
             Divider()
@@ -322,7 +353,8 @@ struct HomePageScreen: View {
         } label: {
             pillView(
                 icon: "line.3.horizontal.decrease",
-                text: sortOption != .newest ? sortOption.rawValue : "Sort",
+//                text: sortOption != .newest ? sortOption.rawValue : "Sort",
+                text: sortOption != .newest ? sortOption.localized : NSLocalizedString("Sort", comment: ""),
                 isActive: isActive
             )
         }
@@ -340,6 +372,14 @@ struct HomePageScreen: View {
                 } label: {
                     Label(cat, systemImage: selectedCategory == cat ? "checkmark" : "")
                 }
+                // Only show delete for user-added categories, not defaults
+                if !defaultCategories.contains(cat) {
+                    Button(role: .destructive) {
+                        removeCategory(cat)
+                    } label: {
+                        Label(NSLocalizedString("Delete", comment: ""), systemImage: "trash")
+                    }
+                }
             }
             Divider()
             Button { showAddCategoryAlert = true } label: {
@@ -348,7 +388,7 @@ struct HomePageScreen: View {
         } label: {
             pillView(
                 icon: "tag",
-                text: selectedCategory ?? "Category",
+                text: selectedCategory ?? NSLocalizedString("Category", comment: ""),
                 isActive: selectedCategory != nil
             )
         }
@@ -724,24 +764,42 @@ struct AddNewProjectNameSheet: View {
                     if v.count > 80 { projectName = String(v.prefix(80)) }
                 }
 
-            Button {
-                let name = projectName.trimmingCharacters(in: .whitespaces)
-                guard !name.isEmpty else { return }
-                onConfirm(name)
-            } label: {
-                Text("Continue")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        projectName.trimmingCharacters(in: .whitespaces).isEmpty
+            if #available(iOS 26.0, *) {
+                Button {
+                    let name = projectName.trimmingCharacters(in: .whitespaces)
+                    guard !name.isEmpty else { return }
+                    onConfirm(name)
+                } label: {
+                    Text("Continue")
+                        .font(.headline)
+                        .padding(.vertical, 14)
+                        .frame(maxWidth: .infinity)
+
+
+                }
+                .buttonStyle(.glassProminent)
+                .tint(Color.brandBlue)
+                .disabled(projectName.trimmingCharacters(in: .whitespaces).isEmpty)
+            } else {
+                Button {
+                    let name = projectName.trimmingCharacters(in: .whitespaces)
+                    guard !name.isEmpty else { return }
+                    onConfirm(name)
+                } label: {
+                    Text("Continue")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            projectName.trimmingCharacters(in: .whitespaces).isEmpty
                             ? Color.brandBlue.opacity(0.4)
                             : Color.brandBlue
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: UIWindowScene.cornerRadius))
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: UIWindowScene.cornerRadius))
+                }
+                .disabled(projectName.trimmingCharacters(in: .whitespaces).isEmpty)
             }
-            .disabled(projectName.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(24)
         .onAppear {
