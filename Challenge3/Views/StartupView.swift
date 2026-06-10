@@ -47,7 +47,6 @@ struct StartupView: View {
                     .multilineTextAlignment(.center)
 
                 Button {
-                    hasSeenStartup = true
                     goToHome = true
                 } label: {
                     Text("Get Started")
@@ -78,7 +77,7 @@ struct StartupView: View {
             .offset(y: 180)
         }
         .fullScreenCover(isPresented: $goToHome) {
-            HomePageScreen()
+            OnboardingView()
         }
     }
 }

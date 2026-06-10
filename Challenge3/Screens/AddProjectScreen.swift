@@ -297,6 +297,7 @@ public struct AddProjectScreen: View {
 
         isSaving = true
 
+        // Compute postDate from the selected date and time
         let postDate: Date? = selectedDate.map { day in
             var components = Calendar.current.dateComponents([.year, .month, .day], from: day)
             components.hour   = (isAM == true) ? postHour % 12 : (postHour % 12) + 12
@@ -374,6 +375,7 @@ struct AddReferenceSheetView: View {
     let onAdd: (ReferenceItem) -> Void
     let onCancel: () -> Void
 
+    // URL is optional; if provided it must start with http:// or https://
     private var isURLValid: Bool {
         let trimmed = refURL.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return true }

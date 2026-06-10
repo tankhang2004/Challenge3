@@ -125,7 +125,7 @@ struct HomePageScreen: View {
             result = result.filter { !$0.captions.isEmpty }
         }
 
-        // 5. Category filter — project bisa punya banyak kategori (comma-separated)
+        // 5. Category filter — a project can have multiple categories (comma-separated)
         if let category = selectedCategory {
             result = result.filter { project in
                 project.category
@@ -803,7 +803,7 @@ struct AddNewProjectNameSheet: View {
         }
         .padding(24)
         .onAppear {
-            // Delay kecil agar sheet sudah selesai animasi sebelum keyboard muncul
+            // Small delay so the sheet finishes its presentation animation before the keyboard appears
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isNameFocused = true
             }

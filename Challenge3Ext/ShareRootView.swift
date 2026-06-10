@@ -22,7 +22,7 @@ struct ShareRootView: View {
     @State private var savedProjectTitle: String = ""
     @State private var refTitle: String = ""
 
-    // Apakah tombol Save aktif
+    // Whether the Save button is enabled
     private var canSave: Bool {
         selectedProject != nil || isCreatingNew
     }
@@ -33,7 +33,7 @@ struct ShareRootView: View {
                 if !isSaved {
                     VStack(alignment: .leading, spacing: 16) {
 
-                        // Preview konten yang di-share
+                        // Preview of the shared content
                         previewBannerView
                             .padding(.horizontal)
                             .padding(.top)
@@ -50,7 +50,7 @@ struct ShareRootView: View {
                             .foregroundColor(.gray)
                             .padding(.horizontal)
 
-                        // ── Opsi: Buat project baru ──
+                        // ── Option: create a new project ──
                         VStack(alignment: .leading, spacing: 0) {
                             Button {
                                 isCreatingNew = true
@@ -75,7 +75,7 @@ struct ShareRootView: View {
                             }
                             .buttonStyle(.plain)
 
-                            // Field nama project (opsional)
+                            // Optional project name input field
                             if isCreatingNew {
                                 TextField("Project name (optional)", text: $newProjectTitle)
                                     .font(.subheadline)
@@ -89,7 +89,7 @@ struct ShareRootView: View {
                             Divider()
                         }
 
-                        // ── Daftar project yang sudah ada ──
+                        // ── Existing project list ──
                         if projects.isEmpty {
                             VStack(spacing: 8) {
                                 Text("No existing projects found.")
@@ -159,7 +159,7 @@ struct ShareRootView: View {
                     }
 
                 } else {
-                    // ── Tampilan sukses ──
+                    // ── Success view ──
                     VStack(spacing: 20) {
                         Spacer()
                         Image(systemName: "checkmark.circle.fill")
