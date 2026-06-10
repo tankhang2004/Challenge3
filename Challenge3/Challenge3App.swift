@@ -1,9 +1,6 @@
 //
 //  Challenge3App.swift
 //  Challenge3
-//
-//  Created by Johnny Khang on 26/05/26.
-//
 
 import SwiftUI
 import SwiftData
@@ -14,62 +11,87 @@ struct Challenge3App: App {
     let sharedContainer: ModelContainer
 
     init() {
-        let groupURL = FileManager.default.containerURL(
+        sharedContainer = Self.makeContainer()
+    }
+
+    // MARK: - Container Setup
+
+    private static func makeContainer() -> ModelContainer {
+        let storeURL = resolveStoreURL()
+
+        // Try with migration plan first
+        if let container = tryMakeContainer(storeURL: storeURL, withMigration: true) {
+            return container
+        }
+
+        // Migration failed — delete old store and recreate fresh (data is lost but app can launch)
+        print("⚠️ Migration failed — resetting store to recover.")
+        deleteStore(at: storeURL)
+
+        if let container = tryMakeContainer(storeURL: storeURL, withMigration: false) {
+            return container
+        }
+
+        // Last resort: in-memory store
+        print("⚠️ Persistent store unavailable — falling back to in-memory.")
+        let memConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+        return try! ModelContainer(
+            for: CreatorProject.self, ReferenceItem.self, ScriptItem.self,
+                 CaptionItem.self, VideoItem.self, ImageItem.self, MusicItem.self,
+            configurations: memConfig
+        )
+    }
+
+    private static func resolveStoreURL() -> URL {
+        if let groupURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: "group.Lumio"
-        )
-
-        let storeURL: URL
-        if let groupURL {
-            storeURL = groupURL.appendingPathComponent("LumioData.sqlite")
-        } else {
-            let appSupportURL = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first ?? FileManager.default.temporaryDirectory
-
-            storeURL = appSupportURL.appendingPathComponent("LumioData.sqlite")
-            print("⚠️ App Group unavailable, using local store at:\n\(storeURL.path)")
+        ) {
+            return groupURL.appendingPathComponent("LumioData.sqlite")
         }
 
+        // App Group unavailable — fall back to Application Support
+        let appSupport = FileManager.default.urls(
+            for: .applicationSupportDirectory, in: .userDomainMask
+        ).first ?? FileManager.default.temporaryDirectory
+
+        return appSupport.appendingPathComponent("LumioData.sqlite")
+    }
+
+    private static func tryMakeContainer(storeURL: URL, withMigration: Bool) -> ModelContainer? {
         let config = ModelConfiguration(url: storeURL)
-
-        // Temporary debug — delete after diagnosis
-        let storeExists = FileManager.default.fileExists(atPath: storeURL.path)
-        print("🗄️ Store exists: \(storeExists)")
-        
         do {
-            sharedContainer = try ModelContainer(
-                for: CreatorProject.self,
-                     ReferenceItem.self,
-                     ScriptItem.self,
-                     CaptionItem.self,
-                     VideoItem.self,
-                    ImageItem.self,
-                    MusicItem.self,
-                migrationPlan: LumioMigrationPlan.self,
-                configurations: config
-            )
-        } catch let error as NSError{
-            // Now you can see the REAL underlying error
-            print("❌ Domain: \(error.domain)")
-            print("❌ Code: \(error.code)")
-            print("❌ Description: \(error.localizedDescription)")
-            print("❌ UserInfo: \(error.userInfo)")
-//            fatalError("Failed to create ModelContainer: \(error)")
-            fatalError("Failed to create ModelContainer: \(error)")
-        }
-        let debugSchema = Schema(
-            LumioSchemaV1.models,
-            version: Schema.Version(1, 0, 0)
-        )
-        for entity in debugSchema.entities {
-            print("🔑 \(entity.name ?? "?"): \(entity.uniquenessConstraints)")
+            if withMigration {
+                return try ModelContainer(
+                    for: CreatorProject.self, ReferenceItem.self, ScriptItem.self,
+                         CaptionItem.self, VideoItem.self, ImageItem.self, MusicItem.self,
+                    migrationPlan: LumioMigrationPlan.self,
+                    configurations: config
+                )
+            } else {
+                return try ModelContainer(
+                    for: CreatorProject.self, ReferenceItem.self, ScriptItem.self,
+                         CaptionItem.self, VideoItem.self, ImageItem.self, MusicItem.self,
+                    configurations: config
+                )
+            }
+        } catch {
+            print("❌ ModelContainer error: \(error)")
+            return nil
         }
     }
 
+    private static func deleteStore(at url: URL) {
+        let fm = FileManager.default
+        let base = url.deletingPathExtension()
+        for ext in ["sqlite", "sqlite-shm", "sqlite-wal"] {
+            try? fm.removeItem(at: base.appendingPathExtension(ext))
+        }
+    }
+
+    // MARK: - Scene
+
     var body: some Scene {
         WindowGroup {
-//            HomePageScreen()
             if hasSeenStartup {
                 HomePageScreen()
             } else {

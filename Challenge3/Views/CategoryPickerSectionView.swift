@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-// Kunci AppStorage yang dipakai bersama semua screen
+// AppStorage key shared across all screens
 let kCategoriesStorageKey = "lumioCategories"
 let kCategoriesDefault    = "Education,Lifestyle,Entertainment,Business,Tech"
 
@@ -58,7 +58,7 @@ struct CategoryPickerSectionView: View {
                         }
                     }
 
-                    // Tombol tambah kategori baru
+                    // Button to add a new category
                     Button(action: onAddCategory) {
                         Image(systemName: "plus")
                             .font(.subheadline.bold())

@@ -20,7 +20,7 @@ struct DetailProjectScreen: View {
     // MARK: - Local edit state
 
     @State private var title: String
-    @State private var outline: String     // disimpan sebagai "Outline" di UI
+    @State private var outline: String     // stored and displayed as "Outline" in the UI
     @State private var script: String
     @State private var caption: String
 
