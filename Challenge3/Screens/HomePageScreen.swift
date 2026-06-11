@@ -69,7 +69,9 @@ struct HomePageScreen: View {
     }
 
     private var categories: [String] {
-        defaultCategories + userCategories
+//        defaultCategories + userCategories
+        Array(Set(defaultCategories + userCategories))
+
     }
 
     private func addCategory(_ name: String) {
@@ -186,6 +188,7 @@ struct HomePageScreen: View {
             || groupByDate || !searchText.isEmpty
     }
 
+    @FocusState private var isSearchFocused: Bool
     // MARK: - Body
 
     var body: some View {
@@ -205,6 +208,11 @@ struct HomePageScreen: View {
                     searchAndFABBar
                 }
             }
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    isSearchFocused = false
+                }
+            )
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $goToAddProject) {
                 AddProjectScreen(initialTitle: newProjectTitle)
@@ -346,9 +354,14 @@ struct HomePageScreen: View {
             }
             Divider()
             Button {
-                withAnimation { isSelecting = true }
+                withAnimation {
+                    isSelecting.toggle()
+                }
             } label: {
-                Label("Select Items", systemImage: "checkmark.circle")
+                Label(
+                    isSelecting ? "Done Selecting" : "Select Items",
+                    systemImage: isSelecting ? "checkmark.circle.fill" : "checkmark.circle"
+                )
             }
         } label: {
             pillView(
@@ -413,18 +426,19 @@ struct HomePageScreen: View {
                 Text(text)
                     .font(.footnote.bold())
             }
-            .padding(.horizontal, 14)
+
+            .padding(.horizontal, 19)
             .padding(.vertical, 9)
 //            .glassEffect((isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular), in: .capsule)
             .modify {
                 if #available(iOS 26.0, *) {
-                    $0.glassEffect(isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular, in: .capsule)
+                    $0.glassEffect(isActive ? .regular.tint(Color.brandOrange.opacity(0.8)) : .regular, in: Capsule())
                 } else {
                     $0.background(isActive ? Color.brandOrange : Color.primary.opacity(0.1)).clipShape(.capsule)
                 }
             }
             .foregroundStyle(isActive ? Color.white : Color.primary)
-            .clipShape(.capsule)
+            .clipShape(Capsule())
             .shadow(color: Color.black.opacity(0.07), radius: 3, x: 0, y: 1)
         }
 
@@ -511,6 +525,7 @@ struct HomePageScreen: View {
 
                     TextField("Search projects...", text: $searchText)
                         .font(.subheadline)
+                        .focused($isSearchFocused)
 
                     if !searchText.isEmpty {
                         Button { searchText = "" } label: {
@@ -817,3 +832,4 @@ struct AddNewProjectNameSheet: View {
     HomePageScreen()
         .modelContainer(for: [CreatorProject.self, ReferenceItem.self], inMemory: true)
 }
+
